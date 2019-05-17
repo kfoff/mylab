@@ -1,14 +1,14 @@
 ## HOW TO USE
 
 
-CREATE NEW DIRECTORY AND GO TO IT
+Create new directory and go to it
 ```bash
 mkdir foo && cd foo
 ```
 
 
 
-INIT ```config.json``` WITH ARGUMENT
+Init ```config.json``` with argument
 - "foo" it is owner, **https://github.com/foo**
 - "bar" it is repository, **https://github.com/foo/bar**
 
@@ -18,21 +18,21 @@ mylab init foo bar
 
 
 
-CLONE PROJECT FROM GITHUB **https://github.com/foo/bar**
+Clone project from github **https://github.com/foo/bar**
 ```bash
 mylab clone
 ```
 
 
 
-CREATE ENVIRONMENT AND INSTALL PIP MODULES
+Create environment and install pip modules
 ```bash
 mylab install
 ```
 
 
 
-CREATE DATABASES AND MIGRATE DATA
+Create databases and migrate data
 ```bash
 mylab migrate
 ```
