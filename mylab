@@ -35,13 +35,12 @@ base_config = {
 }
 
 
-def get_config():
+def make_config():
     check_config = None
     try:
         f = open('mylab.json', 'r')
     except Exception:
         print('not found mylab.json')
-        sys.exit()
         pass
     else:
         f_read = f.read()
@@ -53,9 +52,16 @@ def get_config():
     return check_config
 
 
+def get_config():
+    config = make_config()
+    if config is None:
+        sys.exit()
+    return config
+
+
 def run_init():
     ''' Run init '''
-    if get_config() is None:
+    if make_config() is None:
         try:
             base_config['owner'] = sys.argv[2]
             base_config['name'] = sys.argv[3]
@@ -295,6 +301,19 @@ if __name__ == "__main__":
     for param in sys.argv:
         if param == "config":
             print(get_config())
+
+        if param == "all":
+            run_git_clone()
+            run_env()
+            run_pip()
+            run_make_database()
+            run_copy_settings_local()
+            run_makemigrations()
+            run_migrate()
+            run_load()
+            run_media()
+            run_perm()
+            run_chpasswd_admin()
 
         if param == "init":
             run_init()
