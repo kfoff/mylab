@@ -16,3 +16,5 @@ ufw allow from 62.109.29.220 to any port 873
 ufw deny 873
 
 ln -s `pwd`/mylab /bin/mylab
+
+adduser mylab

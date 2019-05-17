@@ -212,9 +212,10 @@ def run_load():
 
     for i in app:
         print(i)
-        xml_file_path = os.path.join('home', 'mylab', config['name'], 'dump', '%s.xml' % (i))
+        xml_file_path = os.path.join('/', 'home', 'mylab', config['name'], 'dump', '%s.xml' % (i))
+        print(xml_file_path)
         call([
-            '/usr/bin/python3',
+            os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
             '%s/manage.py' % (config['name']),
             'loaddata',
             '-v', '3',
@@ -226,8 +227,8 @@ def run_load():
 def run_media():
     ''' Run media '''
     config = get_config()
-    madia_path_src = os.path.join('home', 'dump', config['name'], 'media')
-    madia_path_dst = os.path.join(os.getcwd(), config['uuid'], config['name'], 'media')
+    madia_path_src = os.path.join('/', 'home', 'mylab', config['name'], 'media')
+    madia_path_dst = os.path.join(os.getcwd(), config['name'], 'media')
     call(['cp', '-R', madia_path_src, madia_path_dst])
 
 
@@ -273,14 +274,11 @@ def run_start():
 
 if __name__ == "__main__":
     for param in sys.argv:
+        if param == "config":
+            print(get_config())
+
         if param == "init":
             run_init()
-
-        if param == "config":
-            print(config)
-
-        if param == "start":
-            run_start()
 
         if param == 'clone':
             run_git_clone()
@@ -297,8 +295,13 @@ if __name__ == "__main__":
 
         if param == 'load':
             run_load()
-            # run_media()
+
+        if param == 'media':
+            run_media()
 
         if param == 'perm':
             run_perm()
             run_chpasswd_admin()
+
+        if param == "start":
+            run_start()
