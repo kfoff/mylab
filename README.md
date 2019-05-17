@@ -1,12 +1,14 @@
 ## MYLAB - BUILDER PROJECT
 
-#### MANUAL
+#### HOW TO USE
 
 > CREATE NEW DIRECTORY AND GO TO IT
 
 ```bash
 mkdir foo && cd foo
 ```
+
+=
 
 > INIT ```config.json``` WITH ARGUMENT
 
