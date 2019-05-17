@@ -40,7 +40,8 @@ def get_config():
     try:
         f = open('mylab.json', 'r')
     except Exception:
-        # print('not found mylab.json')
+        print('not found mylab.json')
+        sys.exit()
         pass
     else:
         f_read = f.read()
@@ -100,6 +101,7 @@ def run_git_clone():
 
 def run_env():
     ''' Run env '''
+    config = get_config()
     call([
         '/usr/bin/python3',
         '-m',
@@ -234,7 +236,7 @@ def run_media():
 
 def run_perm():
     ''' Run perm '''
-    # config = get_config()
+    get_config()
     call(['chmod', '-R', 'uog+rw', os.getcwd()])
 
 
