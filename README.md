@@ -36,3 +36,34 @@ Create databases and migrate data.
 ```bash
 mylab migrate
 ```
+
+
+
+Load data from ```xml``` to database.
+```bash
+mylab load
+```
+
+Copy media.
+```bash
+mylab media
+```
+
+
+
+Copy media.
+```bash
+mylab media
+```
+
+
+Change password for superuser.
+```bash
+mylab perm
+```
+
+
+Start project.
+```bash
+mylab start
+```
