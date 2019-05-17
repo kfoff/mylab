@@ -252,20 +252,43 @@ def run_chpasswd_admin():
 
 
 def run_start():
-    ''' Run start project '''
+    '''
+    Run start project
+    '''
     config = get_config()
+    #
     try:
         port = sys.argv[2]
     except Exception:
         port = '8001'
-
+    #
+    print('Running on: http://mylab.babah24.ru:%s' % (port))
+    #
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '%s/manage.py' % (config['name']),
         # 'runserver',
         'runserver_plus',
-        port
+        '0.0.0.0:%s' % (port),
     ])
+
+
+def run_manage():
+    ''' Run manage '''
+    config = get_config()
+    # try:
+    #     arg = sys.argv[2]
+    # except Exception:
+    #     sys.exit()
+    command = [
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+    ]
+
+    for arg in sys.argv[2:]:
+        command.append(arg)
+
+    call(command)
 
 
 if __name__ == "__main__":
@@ -301,3 +324,6 @@ if __name__ == "__main__":
 
         if param == "start":
             run_start()
+
+        if param == "manage":
+            run_manage()
