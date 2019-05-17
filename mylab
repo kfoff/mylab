@@ -1,0 +1,304 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import string
+import random
+import json
+from subprocess import call
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
+
+
+def uuid_generator(size=12, chars=string.ascii_letters + string.digits):
+    data = ''.join(random.choice(chars) for _ in range(size))
+    data = 'MYLAB_%s' % (data)
+    data = data.upper()
+    return data
+
+
+base_config = {
+    'name': "",
+    'owner': "",
+    'uuid': uuid_generator(),
+    #
+    "git_host": "https://github.com",
+    "git_branch": "master",
+    #
+    'db_user': 'MYLAB_USER',
+    'db_pass': 'MYLAB_PASS',
+    #
+    "dump": "/home/mylab/",
+    "media": "/home/mylab/"
+}
+
+
+def get_config():
+    check_config = None
+    try:
+        f = open('mylab.json', 'r')
+    except Exception:
+        # print('not found mylab.json')
+        pass
+    else:
+        f_read = f.read()
+        f.close()
+        try:
+            check_config = json.loads(f_read)
+        except Exception:
+            print('bad syntax mylab.json')
+    return check_config
+
+
+def run_init():
+    ''' Run init '''
+    if get_config() is None:
+        try:
+            base_config['owner'] = sys.argv[2]
+            base_config['name'] = sys.argv[3]
+        except Exception:
+            print('HELP: mylab init foo bar')
+        else:
+            print('Init config file mylab.json')
+            pp.pprint(base_config)
+            fname = 'mylab.json'
+            fs = open(fname, 'w')
+            fs.write(json.dumps(base_config, indent=4))
+            fs.close()
+    else:
+        print('Config file mylab.json exist')
+
+
+def run_git_clone():
+    ''' Run git clone '''
+    config = get_config()
+    # print(config['project'][p]['git_branch'])
+    # print(config['project'][p]['git'])
+    # call([
+    #     'git',
+    #     'clone',
+    #     '-b',
+    #     '%s' % (config['project'][p_data['name']]['git_branch']),
+    #     '%s' % (config['project'][p_data['name']]['git']),
+    #     p_data['uuid']
+    # ])
+    # call(['chmod', '-R', 'uog+rw', config['nodeid']])
+    # call(['git', 'checkout', 'crm1',])
+    call(['git', 'init'])
+    call([
+        'git',
+        'remote',
+        'add',
+        'origin',
+        '%s/%s/%s' % (config['git_host'], config['owner'], config['name'])
+    ])
+    call(['git', 'fetch', 'origin'])
+    call(['git', 'checkout', '-b', config['git_branch'], '--track', 'origin/master'])
+
+
+def run_env():
+    ''' Run env '''
+    call([
+        '/usr/bin/python3',
+        '-m',
+        'venv',
+        '.pyenv',
+    ])
+
+
+def run_pip():
+    ''' Run pip '''
+    config = get_config()
+    for i in os.listdir(config['name']):
+        if os.path.isdir(os.path.join(config['name'], i)):
+            try:
+                f = open('%s/%s/__mylab.json' % (config['name'], i), 'r')
+            except Exception:
+                # print('not found __mylab.json')
+                pass
+            else:
+                __mylab = f.read()
+                f.close()
+
+                try:
+                    __mylab = json.loads(__mylab)
+                except Exception:
+                    print('bad json __mylab')
+                else:
+                    print(i)
+                    for pip_item in __mylab['pip']:
+                        pip3_bin = os.path.join(os.getcwd(), '.pyenv', 'bin', 'pip3')
+                        print(pip3_bin, 'install', pip_item)
+                        call([
+                            pip3_bin,
+                            'install',
+                            pip_item,
+                        ])
+
+
+def run_make_database():
+    ''' Drop and create database '''
+    config = get_config()
+    fname = '%s_make_database.sh' % (config['uuid'])
+    s = '#!/bin/sh\n'
+    # s = s + 'runuser postgres -c "dropdb ${2}"\n'
+    # s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O ${1} ${2} -T template0"\n'
+    s = s + 'runuser postgres -c "createuser %s"\n' % (config['db_user'])
+    s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O %s %s -T template0"\n' % (config['db_user'], config['uuid'])
+    fs = open(fname, 'w')
+    fs.write(s)
+    fs.close()
+
+    call(['chmod', '777', fname])
+    call(['./%s' % (fname)])
+
+    return True
+
+
+def run_copy_settings_local():
+    ''' Copy settings local '''
+    config = get_config()
+    settings_local = None
+    with open('%s/dj/settings_local.py.EXAMPLE' % (config['name']), 'r') as f:
+        settings_local = f.read()
+
+    # pdb.set_trace()
+    settings_local = settings_local.replace('{{CRMDATA_DIR}}', os.path.join(os.getcwd(), 'crmdata'))
+    settings_local = settings_local.replace("{{DBNAME}}", config['uuid'])
+    settings_local = settings_local.replace("{{DBUSER}}", config['db_user'])
+    settings_local = settings_local.replace("{{DBPASSWORD}}", '')
+    #
+    with open('%s/dj/settings_local.py' % (config['name'], ), 'w') as fe:
+        fe.write(settings_local)
+
+
+def run_makemigrations():
+    ''' Run makemigrations '''
+    config = get_config()
+    for i in os.listdir(config['name']):
+        if os.path.isdir(os.path.join(config['name'], i)):
+            print(i)
+            call([
+                os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+                '%s/manage.py' % (config['name']),
+                'makemigrations',
+                '%s' % (i),
+            ])
+
+
+def run_migrate():
+    ''' Run migrate '''
+    config = get_config()
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+        'makemigrations'
+    ])
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+        'migrate'
+    ])
+
+
+def run_load():
+    ''' Run load '''
+    config = get_config()
+    na_dump_dir_path = os.path.join(os.getcwd(), config['name'], 'na_dump')
+    sys.path.append(na_dump_dir_path)
+    from applist import app
+
+    for i in app:
+        print(i)
+        xml_file_path = os.path.join('home', 'mylab', config['name'], 'dump', '%s.xml' % (i))
+        call([
+            '/usr/bin/python3',
+            '%s/manage.py' % (config['name']),
+            'loaddata',
+            '-v', '3',
+            '--format=xml',
+            xml_file_path,
+        ])
+
+
+def run_media():
+    ''' Run media '''
+    config = get_config()
+    madia_path_src = os.path.join('home', 'dump', config['name'], 'media')
+    madia_path_dst = os.path.join(os.getcwd(), config['uuid'], config['name'], 'media')
+    call(['cp', '-R', madia_path_src, madia_path_dst])
+
+
+def run_perm():
+    ''' Run perm '''
+    # config = get_config()
+    call(['chmod', '-R', 'uog+rw', os.getcwd()])
+
+
+def run_chpasswd_admin():
+    ''' Run chpasswd admin '''
+    config = get_config()
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+        'changepassword',
+        'admin'
+    ])
+
+
+def run_start():
+    ''' Run start project '''
+    config = get_config()
+    #print(os.getcwd())
+    last_dir = os.path.split(os.getcwd())
+    print(last_dir[1])
+    ''' Run start '''
+    # manage_bin = os.path.join(os.getcwd(), p_data['uuid'], '.pyenv', 'bin', 'pip3')
+    # print(pip3_bin, 'install', pip_item)
+    # call([
+    #     pip3_bin,
+    #     'install',
+    #     pip_item,
+    # ])
+
+    #         call([
+    #             '/usr/bin/python3',
+    #             '%s/%s/manage.py' % (p_data['uuid'], p_data['name']),
+    #             'makemigrations',
+    #             '%s' % (i),
+    #         ])
+
+
+if __name__ == "__main__":
+    for param in sys.argv:
+        if param == "init":
+            run_init()
+
+        if param == "config":
+            print(config)
+
+        if param == "start":
+            run_start()
+
+        if param == 'clone':
+            run_git_clone()
+
+        if param == 'install':
+            run_env()
+            run_pip()
+
+        if param == 'migrate':
+            run_make_database()
+            run_copy_settings_local()
+            run_makemigrations()
+            run_migrate()
+
+        if param == 'load':
+            run_load()
+            # run_media()
+
+        if param == 'perm':
+            run_perm()
+            run_chpasswd_admin()
