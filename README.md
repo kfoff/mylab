@@ -8,14 +8,14 @@ mkdir foo && cd foo
 
 
 
-Init ```config.json``` with argument.
-- "foo" it is owner, **https://github.com/foo**
-- "bar" it is repository, **https://github.com/foo/bar**
+Init ```config.json``` with arguments.
+
 
 ```bash
 mylab init foo bar
 ```
-
+> "foo" it is owner, **https://github.com/foo**
+> "bar" it is repository, **https://github.com/foo/bar**
 
 
 Clone project from github **https://github.com/foo/bar**:
