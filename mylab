@@ -101,7 +101,7 @@ def run_git_clone():
 
 def run_env():
     ''' Run env '''
-    config = get_config()
+    get_config()
     call([
         '/usr/bin/python3',
         '-m',
@@ -254,24 +254,18 @@ def run_chpasswd_admin():
 def run_start():
     ''' Run start project '''
     config = get_config()
-    #print(os.getcwd())
-    last_dir = os.path.split(os.getcwd())
-    print(last_dir[1])
-    ''' Run start '''
-    # manage_bin = os.path.join(os.getcwd(), p_data['uuid'], '.pyenv', 'bin', 'pip3')
-    # print(pip3_bin, 'install', pip_item)
-    # call([
-    #     pip3_bin,
-    #     'install',
-    #     pip_item,
-    # ])
+    try:
+        port = sys.argv[2]
+    except Exception:
+        port = '8001'
 
-    #         call([
-    #             '/usr/bin/python3',
-    #             '%s/%s/manage.py' % (p_data['uuid'], p_data['name']),
-    #             'makemigrations',
-    #             '%s' % (i),
-    #         ])
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+        # 'runserver',
+        'runserver_plus',
+        port
+    ])
 
 
 if __name__ == "__main__":
