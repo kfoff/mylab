@@ -1,9 +1,18 @@
-## How to use
+## Quick use
+```bash
+mylab help
+mkdir bar && cd bar
+mylab init foo bar
+mylab all
+mylab start
+```
 
+
+## Step by step use
 
 Create new directory and go to it.
 ```bash
-mkdir foo && cd foo
+mkdir bar && cd bar
 ```
 
 
