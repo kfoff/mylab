@@ -297,8 +297,30 @@ def run_manage():
     call(command)
 
 
+def run_help():
+    print('''# Quick use:
+    1 - mylab init foo bar
+    2 - mylab all
+    3 - mylab start
+# Step by step use:
+    1 - mylab init foo bar
+    2 - mylab clone
+    3 - mylab install
+    4 - mylab migrate
+    5 - mylab load
+    6 - mylab media
+    7 - mylab perm
+    8 - mylab start
+# Project run examples:
+    * mylab start 8002
+    * mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk''')
+
+
 if __name__ == "__main__":
     for param in sys.argv:
+        if param == "help":
+            run_help()
+
         if param == "config":
             print(get_config())
 

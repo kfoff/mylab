@@ -44,12 +44,6 @@ Load data from ```xml``` to database.
 mylab load
 ```
 
-Copy media.
-```bash
-mylab media
-```
-
-
 
 Copy media.
 ```bash
