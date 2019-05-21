@@ -299,21 +299,21 @@ def run_manage():
 
 def run_help():
     print('''# Quick use:
-    1 - mylab init foo bar
-    2 - mylab all
-    3 - mylab start
+    1 - sudo mylab init foo bar
+    2 - sudo mylab all
+    3 - sudo mylab start
 # Step by step use:
-    1 - mylab init foo bar
-    2 - mylab clone
-    3 - mylab install
-    4 - mylab migrate
-    5 - mylab load
-    6 - mylab media
-    7 - mylab perm
-    8 - mylab start
+    1 - sudo mylab init foo bar
+    2 - sudo mylab clone
+    3 - sudo mylab install
+    4 - sudo mylab migrate
+    5 - sudo mylab load
+    6 - sudo mylab media
+    7 - sudo mylab perm
+    8 - sudo mylab start
 # Project run examples:
-    * mylab start 8002
-    * mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk''')
+    * sudo mylab start 8002
+    * sudo mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk''')
 
 
 if __name__ == "__main__":
