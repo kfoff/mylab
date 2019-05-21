@@ -1,10 +1,10 @@
 ## Quick use
 ```bash
-mylab help
-mkdir bar && cd bar
-mylab init foo bar
-mylab all
-mylab start
+sudo mylab help
+sudo mkdir bar && cd bar
+sudo mylab init foo bar
+sudo mylab all
+sudo mylab start
 ```
 
 
@@ -12,7 +12,7 @@ mylab start
 
 Create new directory and go to it.
 ```bash
-mkdir bar && cd bar
+sudo mkdir bar && cd bar
 ```
 
 
@@ -21,7 +21,7 @@ Init ```config.json``` with arguments.
 
 
 ```bash
-mylab init foo bar
+sudo mylab init foo bar
 ```
 > "foo" it is owner **https://github.com/foo**,
 > "bar" it is repository **https://github.com/foo/bar**,
@@ -29,54 +29,54 @@ mylab init foo bar
 
 Clone project from github **https://github.com/foo/bar**:
 ```bash
-mylab clone
+sudo mylab clone
 ```
 
 
 
 Create environment and install pip modules.
 ```bash
-mylab install
+sudo mylab install
 ```
 
 
 
 Create databases and migrate data.
 ```bash
-mylab migrate
+sudo mylab migrate
 ```
 
 
 
 Load data from ```xml``` to database.
 ```bash
-mylab load
+sudo mylab load
 ```
 
 
 Copy media.
 ```bash
-mylab media
+sudo mylab media
 ```
 
 
 Change password for superuser.
 ```bash
-mylab perm
+sudo mylab perm
 ```
 
 
 Start project.
 ```bash
-mylab start
+sudo mylab start
 ```
 or
 ```bash
-mylab start 8002
+sudo mylab start 8002
 ```
 or
 ```bash
-mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk
+sudo mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk
 ```
 > port from ```8000``` to ```8500```
 
