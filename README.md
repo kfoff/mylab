@@ -43,7 +43,7 @@ sudo mylab install
 
 Create databases and migrate data.
 ```bash
-sudo mylab migrate
+sudo mylab makemigrate
 ```
 
 
