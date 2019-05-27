@@ -306,7 +306,7 @@ def run_help():
     1 - sudo mylab init foo bar
     2 - sudo mylab clone
     3 - sudo mylab install
-    4 - sudo mylab migrate
+    4 - sudo mylab makemigrate
     5 - sudo mylab load
     6 - sudo mylab media
     7 - sudo mylab perm
@@ -347,7 +347,7 @@ if __name__ == "__main__":
             run_env()
             run_pip()
 
-        if param == 'migrate':
+        if param == 'makemigrate':
             run_make_database()
             run_copy_settings_local()
             run_makemigrations()
