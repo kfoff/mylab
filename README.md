@@ -110,7 +110,7 @@ if it is not, **add "C:\Program Files\Git\cmd;",** to the end of your PATH varia
 https://www.enterprisedb.com/downloads/postgres-postg..
 
 Make sure, that "psql" is accessible from the CMD
-if it is not, **add "C:\Program Files\PostgreSQL\11\bin;" ** to the end of your PATH variable
+if it is not, **add "C:\Program Files\PostgreSQL\11\bin;"** to the end of your PATH variable
 
 edit your **C:/Program Files/PostgreSQL/11/data/pg_hba.conf file**, replace the values in the last column with the values 'trust' like this:
 
