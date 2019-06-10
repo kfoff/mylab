@@ -1,20 +1,64 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
+"""
+Mylab is used for the fast installation of a Django project.
+It can be run on both Linux and Windows, it creates a virtual env,
+database and make all the migrations.
+All you need is to specify your git repository:
+    python mylab init <rep_owner> <rep_name>
+Then run:
+    python mylab all
+And then:
+    python mylab start <desirable_port>
+"""
 import os
 import sys
 import string
 import random
 import json
-from subprocess import call
 import pprint
+import platform
+from subprocess import call
 
 pp = pprint.PrettyPrinter(indent=4)
 
+CURRENT_SYSTEM = platform.system()
+
+POSTGRES_PASS = '123456'
+
+# define the paths for pip and python
+if CURRENT_SYSTEM == 'Windows':
+    PYTHON_PATH = os.path.join(
+        os.getcwd(),
+        'pyenv',
+        'Scripts',
+        'python'
+    )
+    PIP_PATH = os.path.join(
+        os.getcwd(),
+        'pyenv',
+        'Scripts',
+        'pip3'
+    )
+elif CURRENT_SYSTEM == 'Linux':
+    PYTHON_PATH = os.path.join(
+        os.getcwd(),
+        'pyenv',
+        'bin',
+        'python3'
+    )
+    PIP_PATH = os.path.join(
+        os.getcwd(),
+        'pyenv',
+        'bin',
+        'pip3'
+    )
+else:
+    raise Exception("The OS you're using is not supported")
+
 
 def uuid_generator(size=12, chars=string.ascii_letters + string.digits):
+    """ Generate an uuid for the db's name """
     data = ''.join(random.choice(chars) for _ in range(size))
-    data = 'MYLAB_%s' % (data)
+    data = 'MYLAB_' + data
     data = data.upper()
     return data
 
@@ -23,19 +67,20 @@ base_config = {
     'name': "",
     'owner': "",
     'uuid': uuid_generator(),
-    #
+    
     "git_host": "https://github.com",
     "git_branch": "master",
-    #
+    
     'db_user': 'MYLAB_USER',
     'db_pass': 'MYLAB_PASS',
-    #
-    "dump": "/home/mylab/",
-    "media": "/home/mylab/"
+    
+    "dump": os.path.join(os.getcwd(), 'assets', 'dump'),
+    "media": os.path.join(os.getcwd(), 'assets', 'media')
 }
 
 
 def make_config():
+    """ Make config """
     check_config = None
     try:
         f = open('mylab.json', 'r')
@@ -53,25 +98,39 @@ def make_config():
 
 
 def get_config():
+    """ Get config """
     config = make_config()
     if config is None:
         sys.exit()
     return config
 
 
+def get_manage_path():
+    """ Get the manage path """
+    config = get_config()
+
+    return os.path.join(
+        os.getcwd(),
+        config['name'],
+        config['name'],
+        'manage.py'
+    )
+
+
 def run_init():
-    ''' Run init '''
+    """ Run init """
     if make_config() is None:
         try:
             base_config['owner'] = sys.argv[2]
             base_config['name'] = sys.argv[3]
+            
         except Exception:
             print('HELP: mylab init foo bar')
         else:
             print('Init config file mylab.json')
             pp.pprint(base_config)
-            fname = 'mylab.json'
-            fs = open(fname, 'w')
+            file_name = 'mylab.json'
+            fs = open(file_name, 'w')
             fs.write(json.dumps(base_config, indent=4))
             fs.close()
     else:
@@ -79,52 +138,80 @@ def run_init():
 
 
 def run_git_clone():
-    ''' Run git clone '''
+    """ Run git clone """
     config = get_config()
-    # print(config['project'][p]['git_branch'])
-    # print(config['project'][p]['git'])
-    # call([
-    #     'git',
-    #     'clone',
-    #     '-b',
-    #     '%s' % (config['project'][p_data['name']]['git_branch']),
-    #     '%s' % (config['project'][p_data['name']]['git']),
-    #     p_data['uuid']
-    # ])
-    # call(['chmod', '-R', 'uog+rw', config['nodeid']])
-    # call(['git', 'checkout', 'crm1',])
-    call(['git', 'init'])
     call([
         'git',
-        'remote',
-        'add',
-        'origin',
-        '%s/%s/%s' % (config['git_host'], config['owner'], config['name'])
+        'clone',
+        '{0}/{1}/{2}'.format(
+            config['git_host'],
+            config['owner'],
+            config['name']
+        )
     ])
-    call(['git', 'fetch', 'origin'])
-    call(['git', 'checkout', '-b', config['git_branch'], '--track', 'origin/master'])
 
 
 def run_env():
-    ''' Run env '''
-    get_config()
-    call([
-        '/usr/bin/python3',
-        '-m',
-        'venv',
-        '.pyenv',
-    ])
+    """ Run env """
+
+    if CURRENT_SYSTEM == "Windows":
+
+        call([
+            'python',
+            '-m',
+            'venv',
+            'pyenv',
+        ])
+
+    elif CURRENT_SYSTEM == "Linux":
+
+        call([
+            'python3',
+            '-m',
+            'venv',
+            'pyenv',
+        ])
 
 
 def run_pip():
-    ''' Run pip '''
+    """ Run pip """
     config = get_config()
+    
+    # update pip3
+    call([
+        PIP_PATH,
+        'install',
+        '--upgrade',
+        'pip'
+    ])
+    
+    # install Levenshtein (it's installed separately becuase we need
+    # a specifid version)
+    if CURRENT_SYSTEM == "Windows":
+        call([
+            PIP_PATH,
+            'install',
+            'https://download.lfd.uci.edu/pythonlibs/t4jqbe6o/python_Levenshtein-0.12.0-cp36-cp36m-win_amd64.whl'
+        ])
+    elif CURRENT_SYSTEM == "Linux":
+        call([
+            PIP_PATH,
+            'install',
+            'python-Levenshtein'
+        ])
+        
     for i in os.listdir(config['name']):
         if os.path.isdir(os.path.join(config['name'], i)):
             try:
-                f = open('%s/%s/__mylab.json' % (config['name'], i), 'r')
+                file_to_open = os.path.join(
+                                os.getcwd(),
+                                config['name'],
+                                config['name'],
+                                'dj',
+                                '__mylab.json',
+                                )
+                f = open(file_to_open, 'r')
             except Exception:
-                # print('not found __mylab.json')
                 pass
             else:
                 __mylab = f.read()
@@ -137,94 +224,194 @@ def run_pip():
                 else:
                     print(i)
                     for pip_item in __mylab['pip']:
-                        pip3_bin = os.path.join(os.getcwd(), '.pyenv', 'bin', 'pip3')
-                        print(pip3_bin, 'install', pip_item)
+                        print(PIP_PATH, 'install', pip_item)
                         call([
-                            pip3_bin,
+                            PIP_PATH,
                             'install',
                             pip_item,
                         ])
 
 
 def run_make_database():
-    ''' Drop and create database '''
+    """ Drop and create database """
     config = get_config()
-    fname = '%s_make_database.sh' % (config['uuid'])
-    s = '#!/bin/sh\n'
-    # s = s + 'runuser postgres -c "dropdb ${2}"\n'
-    # s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O ${1} ${2} -T template0"\n'
-    s = s + 'runuser postgres -c "createuser %s"\n' % (config['db_user'])
-    s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O %s %s -T template0"\n' % (config['db_user'], config['uuid'])
-    fs = open(fname, 'w')
-    fs.write(s)
-    fs.close()
-
-    call(['chmod', '777', fname])
-    call(['./%s' % (fname)])
+    
+    # for Windows
+    if CURRENT_SYSTEM == "Windows":
+    
+        # drop the database in case it exists
+        call([
+            'psql',
+            '-U',
+            'postgres',
+            '-c',
+            'drop database {0}'.format(config['uuid']),
+        ])
+        
+        # create a role
+        call([
+            'psql',
+            '-U',
+            'postgres',
+            '-c',
+            "create user {0} with password '{1}'".format(config['db_user'], POSTGRES_PASS),
+        ])
+        
+        # create the database
+        call([
+            'psql',
+            '-U',
+            'postgres',
+            '-c',
+            'create database {0} owner {1}'.format(
+                config['uuid'],
+                config['db_user']
+            ),
+        ])
+    
+    # for Linux
+    elif CURRENT_SYSTEM == "Linux":
+    
+        # drop the database in case it exists
+        print("Trying to drop the current base")
+        call([
+            'sudo',
+            '-u',
+            'postgres',
+            'psql',
+            '-c',
+            'drop database {0}'.format(config['uuid']),
+        ])
+        
+        # create a role
+        print("Trying to create a user for the db")
+        call([
+            'sudo',
+            '-u',
+            'postgres',
+            'psql',
+            '-c',
+            "create user {0} with password '{1}'".format(config['db_user'], POSTGRES_PASS),
+        ])
+        
+        # create the database
+        print("Trying to create the db")
+        call([
+            'sudo',
+            '-u',
+            'postgres',
+            'psql',
+            '-c',
+            'create database {0} owner {1}'.format(
+                config['uuid'],
+                config['db_user']
+            ),
+        ])
 
     return True
 
 
 def run_copy_settings_local():
-    ''' Copy settings local '''
+    """ Copy settings local """
     config = get_config()
-    settings_local = None
-    with open('%s/dj/settings_local.py.EXAMPLE' % (config['name']), 'r') as f:
+
+    # read the content
+    file_to_open = os.path.join(
+        os.getcwd(), 
+        config['name'], 
+        config['name'],
+        'dj', 
+        'settings_local.py.EXAMPLE'
+    )
+    
+    with open(file_to_open, 'r') as f:
         settings_local = f.read()
 
-    # pdb.set_trace()
-    settings_local = settings_local.replace('{{CRMDATA_DIR}}', os.path.join(os.getcwd(), 'crmdata'))
-    settings_local = settings_local.replace("{{DBNAME}}", config['uuid'])
-    settings_local = settings_local.replace("{{DBUSER}}", config['db_user'])
-    settings_local = settings_local.replace("{{DBPASSWORD}}", '')
-    #
-    with open('%s/dj/settings_local.py' % (config['name'], ), 'w') as fe:
+    # change the content
+    settings_local = settings_local.replace(
+        "{{DBNAME}}",
+        config['uuid'].lower()
+    )
+    settings_local = settings_local.replace(
+        "{{DBUSER}}",
+        config['db_user'].lower()
+    )
+    settings_local = settings_local.replace(
+        "{{DBPASSWORD}}",
+        POSTGRES_PASS
+    )
+    
+    # write the content 
+    file_to_open = os.path.join(
+        os.getcwd(), 
+        config['name'], 
+        config['name'],
+        'dj', 
+        'settings_local.py'
+    )
+
+    with open(file_to_open, 'w') as fe:
         fe.write(settings_local)
 
 
 def run_makemigrations():
-    ''' Run makemigrations '''
+    """ Run makemigrations """
     config = get_config()
-    for i in os.listdir(config['name']):
-        if os.path.isdir(os.path.join(config['name'], i)):
+    # make the general migrations
+
+    call([
+        PYTHON_PATH,
+        get_manage_path(),
+        'makemigrations',
+    ])
+    
+    for i in os.listdir(os.path.join(config['name'], config['name'])):
+        if os.path.isdir(os.path.join(config['name'], config['name'], i)):
+            # print the application name
             print(i)
             call([
-                os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-                '%s/manage.py' % (config['name']),
+                PYTHON_PATH,
+                get_manage_path(),
                 'makemigrations',
-                '%s' % (i),
+                i,
             ])
 
 
 def run_migrate():
-    ''' Run migrate '''
-    config = get_config()
+    """ Run migrate """
+
     call([
-        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
-        'makemigrations'
-    ])
-    call([
-        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
+        PYTHON_PATH,
+        get_manage_path(),
         'migrate'
     ])
 
 
 def run_load():
-    ''' Run load '''
+    """ Run load """
     config = get_config()
-    na_dump_dir_path = os.path.join(os.getcwd(), config['name'], 'na_dump')
+    
+    # expand the path to find the app list module
+    na_dump_dir_path = os.path.join(
+        os.getcwd(), 
+        config['name'],
+        config['name'],
+        'na_dump'
+    )
+    
     sys.path.append(na_dump_dir_path)
     from applist import app
-
+    
     for i in app:
         print(i)
-        xml_file_path = os.path.join('/', 'home', 'mylab', config['name'], 'dump', '%s.xml' % (i))
+        xml_file_path = os.path.join(
+            config['dump'],
+            '%s.xml' % i
+        )
         print(xml_file_path)
         call([
-            os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-            '%s/manage.py' % (config['name']),
+            PYTHON_PATH,
+            get_manage_path(),
             'loaddata',
             '-v', '3',
             '--format=xml',
@@ -233,62 +420,82 @@ def run_load():
 
 
 def run_media():
-    ''' Run media '''
+    """ Run media """
+    
     config = get_config()
-    madia_path_src = os.path.join('/', 'home', 'mylab', config['name'], 'media')
-    madia_path_dst = os.path.join(os.getcwd(), config['name'], 'media')
-    call(['cp', '-R', madia_path_src, madia_path_dst])
+    # source
+    media_path_src = config['media']
+    # destination 
+    media_path_dst = os.path.join(
+        os.getcwd(), 
+        config['name'], 
+        config['name'], 
+        'media'
+    )
+    
+    if CURRENT_SYSTEM == "Windows":
+        print("Press D! Press D! Press D! Press D!")
+        call([
+            'xcopy', 
+            media_path_src,
+            media_path_dst,
+            '/E'
+        ])
+
+    elif CURRENT_SYSTEM == "Linux":
+        call([
+            'cp',
+            '-R', 
+            media_path_src,
+            media_path_dst
+        ])
+        
 
 
 def run_perm():
-    ''' Run perm '''
-    get_config()
-    call(['chmod', '-R', 'uog+rw', os.getcwd()])
+    """ Run perm """
+    if CURRENT_SYSTEM == "Linux":
+
+        call([
+            'chmod',
+            '-R',
+            'uog+rw',
+            os.getcwd()
+        ])
 
 
 def run_chpasswd_admin():
-    ''' Run chpasswd admin '''
-    config = get_config()
+    """ Run change password admin """
+
     call([
-        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
+        PYTHON_PATH,
+        get_manage_path(),
         'changepassword',
         'admin'
     ])
 
 
 def run_start():
-    '''
-    Run start project
-    '''
-    config = get_config()
-    #
+    """ Run start project """
+
     try:
         port = sys.argv[2]
     except Exception:
         port = '8001'
-    #
-    print('Running on: http://mylab.babah24.ru:%s' % (port))
-    #
     call([
-        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
-        # 'runserver',
-        'runserver_plus',
-        '0.0.0.0:%s' % (port),
+        PYTHON_PATH,
+        get_manage_path(),
+        'runserver',
+        port
     ])
 
 
 def run_manage():
-    ''' Run manage '''
-    config = get_config()
-    # try:
-    #     arg = sys.argv[2]
-    # except Exception:
-    #     sys.exit()
+    """ Run manage """
+
     command = [
-        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
+        PYTHON_PATH,
+        get_manage_path(),
     ]
 
     for arg in sys.argv[2:]:
@@ -298,22 +505,24 @@ def run_manage():
 
 
 def run_help():
-    print('''# Quick use:
-    1 - sudo mylab init foo bar
-    2 - sudo mylab all
-    3 - sudo mylab start
-# Step by step use:
-    1 - sudo mylab init foo bar
-    2 - sudo mylab clone
-    3 - sudo mylab install
-    4 - sudo mylab makemigrate
-    5 - sudo mylab load
-    6 - sudo mylab media
-    7 - sudo mylab perm
-    8 - sudo mylab start
-# Project run examples:
-    * sudo mylab start 8002
-    * sudo mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk''')
+    print(
+        """# Quick use:
+            1 - sudo mylab init foo bar
+            2 - sudo mylab all
+            3 - sudo mylab start
+        # Step by step use:
+            1 - sudo mylab init foo bar
+            2 - sudo mylab clone
+            3 - sudo mylab install
+            4 - sudo mylab makemigrate
+            5 - sudo mylab load
+            6 - sudo mylab media
+            7 - sudo mylab perm
+            8 - sudo mylab start
+        # Project run examples:
+            * sudo mylab start 8002
+            * sudo mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk"""
+)
 
 
 if __name__ == "__main__":
@@ -330,11 +539,11 @@ if __name__ == "__main__":
             run_pip()
             run_make_database()
             run_copy_settings_local()
+            run_perm()
             run_makemigrations()
             run_migrate()
             run_load()
             run_media()
-            run_perm()
             run_chpasswd_admin()
 
         if param == "init":
