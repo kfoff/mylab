@@ -131,14 +131,14 @@ Open a MSYS2 MinGW shell, and run: pacman -S mingw-w64-x86_64-gtk3
 
 6) Modify PATH variable so that the library can be found
 
-Open up Control Panel
-Go to System and Security > System
-Click on the Advanced system settings link
-Click on Environment Variables... button
-Under System variables find the Path variable and select it
-Click the Edit button
-Add C:\msys32\mingw64\bin; to the end of the PATH variable, depending on your system architecture
-Click OK, and you are done
+- Open up Control Panel
+- Go to System and Security > System
+- Click on the Advanced system settings link
+- Click on Environment Variables... button
+- Under System variables find the Path variable and select it
+- Click the Edit button
+- Add C:\msys32\mingw64\bin; to the end of the PATH variable, depending on your system architecture
+- Click OK, and you are done
 
 7) Restart your system for the changes to apply
 
