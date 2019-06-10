@@ -1,4 +1,4 @@
-## Quick use
+## Quick use.
 ```bash
 sudo mylab help
 sudo mkdir bar && cd bar
