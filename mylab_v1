@@ -58,7 +58,7 @@ else:
 def uuid_generator(size=12, chars=string.ascii_letters + string.digits):
     """ Generate an uuid for the db's name """
     data = ''.join(random.choice(chars) for _ in range(size))
-    data = 'MYLAB_' + data
+    data = 'MYLAB_%s' % data
     data = data.upper()
     return data
 
@@ -254,7 +254,10 @@ def run_make_database():
             '-U',
             'postgres',
             '-c',
-            "create user {0} with password '{1}'".format(config['db_user'], POSTGRES_PASS),
+            "create user {0} with password '{1}'".format(
+                config['db_user'],
+                POSTGRES_PASS
+            ),
         ])
         
         # create the database
@@ -291,7 +294,10 @@ def run_make_database():
             'postgres',
             'psql',
             '-c',
-            "create user {0} with password '{1}'".format(config['db_user'], POSTGRES_PASS),
+            "create user {0} with password '{1}'".format(
+                config['db_user'],
+                POSTGRES_PASS
+            ),
         ])
         
         # create the database
@@ -451,7 +457,6 @@ def run_media():
         ])
         
 
-
 def run_perm():
     """ Run perm """
     if CURRENT_SYSTEM == "Linux":
@@ -539,12 +544,12 @@ if __name__ == "__main__":
             run_pip()
             run_make_database()
             run_copy_settings_local()
-            run_perm()
             run_makemigrations()
             run_migrate()
             run_load()
             run_media()
             run_chpasswd_admin()
+            run_perm()
 
         if param == "init":
             run_init()

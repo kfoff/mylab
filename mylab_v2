@@ -1,0 +1,530 @@
+"""
+Mylab is used for the fast installation of a Django project.
+It can be run on both Linux and Windows, it creates a virtual env,
+database and make all the migrations.
+All you need is to specify your git repository:
+    python mylab init <rep_owner> <rep_name>
+Then run:
+    python mylab all
+And then:
+    python mylab start <desirable_port>
+"""
+import os
+import sys
+import string
+import random
+import json
+import pprint
+import platform
+from subprocess import call
+
+pp = pprint.PrettyPrinter(indent=4)
+
+CURRENT_SYSTEM = platform.system()
+
+
+# define the paths for pip and python
+if CURRENT_SYSTEM == 'Windows':
+    PYTHON_PATH = os.path.join(
+        os.getcwd(),
+        'pyenv',
+        'Scripts',
+        'python'
+    )
+    PIP_PATH = os.path.join(
+        os.getcwd(),
+        'pyenv',
+        'Scripts',
+        'pip3'
+    )
+elif CURRENT_SYSTEM == 'Linux':
+    PYTHON_PATH = os.path.join(
+        os.getcwd(),
+        'pyenv',
+        'bin',
+        'python3'
+    )
+    PIP_PATH = os.path.join(
+        os.getcwd(),
+        'pyenv',
+        'bin',
+        'pip3'
+    )
+else:
+    raise Exception("The OS you're using is not supported")
+
+
+def uuid_generator(size=12, chars=string.ascii_letters + string.digits):
+    """ Generate an uuid for the db's name """
+    data = ''.join(random.choice(chars) for _ in range(size))
+    data = 'MYLAB_%s' % data
+    data = data.upper()
+    return data
+
+
+base_config = {
+    'name': "",
+    'owner': "",
+    'uuid': uuid_generator(),
+    
+    "git_host": "https://github.com",
+    "git_branch": "master",
+    
+    'db_user': 'mylab_user',
+    'db_pass': 'Protected567',
+    'db_host': '164.215.67.15',
+    'db_port': '5433',
+    
+    "dump": os.path.join(os.getcwd(), 'assets', 'dump'),
+    "media": os.path.join(os.getcwd(), 'assets', 'media')
+}
+
+
+def make_config():
+    """ Make config """
+    check_config = None
+    try:
+        f = open('mylab.json', 'r')
+    except Exception:
+        print('not found mylab.json')
+        pass
+    else:
+        f_read = f.read()
+        f.close()
+        try:
+            check_config = json.loads(f_read)
+        except Exception:
+            print('bad syntax mylab.json')
+    return check_config
+
+
+def get_config():
+    """ Get config """
+    config = make_config()
+    if config is None:
+        sys.exit()
+    return config
+
+
+def get_manage_path():
+    """ Get the manage path """
+    config = get_config()
+
+    return os.path.join(
+        os.getcwd(),
+        config['name'],
+        config['name'],
+        'manage.py'
+    )
+
+
+def run_init():
+    """ Run init """
+    if make_config() is None:
+        try:
+            base_config['owner'] = sys.argv[2]
+            base_config['name'] = sys.argv[3]
+            
+        except Exception:
+            print('HELP: mylab init foo bar')
+        else:
+            print('Init config file mylab.json')
+            pp.pprint(base_config)
+            file_name = 'mylab.json'
+            fs = open(file_name, 'w')
+            fs.write(json.dumps(base_config, indent=4))
+            fs.close()
+    else:
+        print('Config file mylab.json exist')
+
+
+def run_git_clone():
+    """ Run git clone """
+    config = get_config()
+    call([
+        'git',
+        'clone',
+        '{0}/{1}/{2}'.format(
+            config['git_host'],
+            config['owner'],
+            config['name']
+        )
+    ])
+
+
+def run_env():
+    """ Run env """
+
+    if CURRENT_SYSTEM == "Windows":
+
+        call([
+            'python',
+            '-m',
+            'venv',
+            'pyenv',
+        ])
+
+    elif CURRENT_SYSTEM == "Linux":
+
+        call([
+            'python3',
+            '-m',
+            'venv',
+            'pyenv',
+        ])
+
+
+def run_pip():
+    """ Run pip """
+    config = get_config()
+    
+    # update pip3
+    call([
+        PIP_PATH,
+        'install',
+        '--upgrade',
+        'pip'
+    ])
+    
+    # install Levenshtein (it's installed separately becuase we need
+    # a specifid version)
+    if CURRENT_SYSTEM == "Windows":
+        call([
+            PIP_PATH,
+            'install',
+            'https://download.lfd.uci.edu/pythonlibs/t4jqbe6o/python_Levenshtein-0.12.0-cp36-cp36m-win_amd64.whl'
+        ])
+    elif CURRENT_SYSTEM == "Linux":
+        call([
+            PIP_PATH,
+            'install',
+            'python-Levenshtein'
+        ])
+        
+    for i in os.listdir(config['name']):
+        if os.path.isdir(os.path.join(config['name'], i)):
+            try:
+                file_to_open = os.path.join(
+                                os.getcwd(),
+                                config['name'],
+                                config['name'],
+                                'dj',
+                                '__mylab.json',
+                                )
+                f = open(file_to_open, 'r')
+            except Exception:
+                pass
+            else:
+                __mylab = f.read()
+                f.close()
+
+                try:
+                    __mylab = json.loads(__mylab)
+                except Exception:
+                    print('bad json __mylab')
+                else:
+                    print(i)
+                    for pip_item in __mylab['pip']:
+                        print(PIP_PATH, 'install', pip_item)
+                        call([
+                            PIP_PATH,
+                            'install',
+                            pip_item,
+                        ])
+
+
+def run_make_database():
+    """ Drop and create database """
+    config = get_config()
+
+    os.environ["PGPASSWORD"] = config['db_pass']
+
+    call([
+        'psql',
+        '-h',
+        config['db_host'],
+        '-p',
+        config['db_port'],
+        '-U',
+        config['db_user'],
+        '-W',
+        '-c',
+        'create database %s;' % config['uuid']
+    ])
+
+    return True
+
+
+def run_copy_settings_local():
+    """ Copy settings local """
+    config = get_config()
+
+    # read the content
+    file_to_open = os.path.join(
+        os.getcwd(), 
+        config['name'], 
+        config['name'],
+        'dj', 
+        'settings_local.py.EXAMPLE'
+    )
+    
+    with open(file_to_open, 'r') as f:
+        settings_local = f.read()
+
+    # change the content
+    settings_local = settings_local.replace(
+        "{{DBNAME}}",
+        config['uuid'].lower()
+    )
+    settings_local = settings_local.replace(
+        "{{DBUSER}}",
+        config['db_user'].lower()
+    )
+    settings_local = settings_local.replace(
+        "{{DBPASSWORD}}",
+        config['db_pass']
+    )
+    settings_local = settings_local.replace(
+        "127.0.0.1",
+        config['db_host']
+    )
+    settings_local = settings_local.replace(
+        "5432",
+        config['db_port']
+    )
+    
+    # write the content 
+    file_to_open = os.path.join(
+        os.getcwd(), 
+        config['name'], 
+        config['name'],
+        'dj', 
+        'settings_local.py'
+    )
+
+    with open(file_to_open, 'w') as fe:
+        fe.write(settings_local)
+
+
+def run_makemigrations():
+    """ Run makemigrations """
+    config = get_config()
+    # make the general migrations
+
+    call([
+        PYTHON_PATH,
+        get_manage_path(),
+        'makemigrations',
+    ])
+    
+    for i in os.listdir(os.path.join(config['name'], config['name'])):
+        if os.path.isdir(os.path.join(config['name'], config['name'], i)):
+            # print the application name
+            print(i)
+            call([
+                PYTHON_PATH,
+                get_manage_path(),
+                'makemigrations',
+                i,
+            ])
+
+
+def run_migrate():
+    """ Run migrate """
+
+    call([
+        PYTHON_PATH,
+        get_manage_path(),
+        'migrate'
+    ])
+
+
+def run_load():
+    """ Run load """
+    config = get_config()
+    
+    # expand the path to find the app list module
+    na_dump_dir_path = os.path.join(
+        os.getcwd(), 
+        config['name'],
+        config['name'],
+        'na_dump'
+    )
+    
+    sys.path.append(na_dump_dir_path)
+    from applist import app
+    
+    for i in app:
+        print(i)
+        xml_file_path = os.path.join(
+            config['dump'],
+            '%s.xml' % i
+        )
+        print(xml_file_path)
+        call([
+            PYTHON_PATH,
+            get_manage_path(),
+            'loaddata',
+            '-v', '3',
+            '--format=xml',
+            xml_file_path,
+        ])
+
+
+def run_media():
+    """ Run media """
+    
+    config = get_config()
+    # source
+    media_path_src = config['media']
+    # destination 
+    media_path_dst = os.path.join(
+        os.getcwd(), 
+        config['name'], 
+        config['name'], 
+        'media'
+    )
+    
+    if CURRENT_SYSTEM == "Windows":
+        print("Press D! Press D! Press D! Press D!")
+        call([
+            'xcopy', 
+            media_path_src,
+            media_path_dst,
+            '/E'
+        ])
+
+    elif CURRENT_SYSTEM == "Linux":
+        call([
+            'cp',
+            '-R', 
+            media_path_src,
+            media_path_dst
+        ])
+        
+
+def run_perm():
+    """ Run perm """
+    if CURRENT_SYSTEM == "Linux":
+
+        call([
+            'chmod',
+            '-R',
+            'uog+rw',
+            os.getcwd()
+        ])
+
+
+def run_chpasswd_admin():
+    """ Run change password admin """
+
+    call([
+        PYTHON_PATH,
+        get_manage_path(),
+        'changepassword',
+        'admin'
+    ])
+
+
+def run_start():
+    """ Run start project """
+
+    try:
+        port = sys.argv[2]
+    except Exception:
+        port = '8001'
+    call([
+        PYTHON_PATH,
+        get_manage_path(),
+        'runserver',
+        port
+    ])
+
+
+def run_manage():
+    """ Run manage """
+
+    command = [
+        PYTHON_PATH,
+        get_manage_path(),
+    ]
+
+    for arg in sys.argv[2:]:
+        command.append(arg)
+
+    call(command)
+
+
+def run_help():
+    print(
+        """# Quick use:
+            1 - sudo mylab init foo bar
+            2 - sudo mylab all
+            3 - sudo mylab start
+        # Step by step use:
+            1 - sudo mylab init foo bar
+            2 - sudo mylab clone
+            3 - sudo mylab install
+            4 - sudo mylab makemigrate
+            5 - sudo mylab load
+            6 - sudo mylab media
+            7 - sudo mylab perm
+            8 - sudo mylab start
+        # Project run examples:
+            * sudo mylab start 8002
+            * sudo mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk"""
+)
+
+
+if __name__ == "__main__":
+    for param in sys.argv:
+        if param == "help":
+            run_help()
+
+        if param == "config":
+            print(get_config())
+
+        if param == "all":
+            # run_git_clone()
+            # run_env()
+            # run_pip()
+            # run_make_database()
+            # run_copy_settings_local()
+            # run_makemigrations()
+            # run_migrate()
+            # run_load()
+            # run_media()
+            # run_chpasswd_admin()
+            # run_perm()
+
+        if param == "init":
+            run_init()
+
+        if param == 'clone':
+            run_git_clone()
+
+        if param == 'install':
+            run_env()
+            run_pip()
+
+        if param == 'makemigrate':
+            run_make_database()
+            run_copy_settings_local()
+            run_makemigrations()
+            run_migrate()
+
+        if param == 'load':
+            run_load()
+
+        if param == 'media':
+            run_media()
+
+        if param == 'perm':
+            run_perm()
+            run_chpasswd_admin()
+
+        if param == "start":
+            run_start()
+
+        if param == "manage":
+            run_manage()
