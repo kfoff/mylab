@@ -236,8 +236,14 @@ def run_pip():
 def run_make_database():
     """ Drop and create database """
     config = get_config()
-
-    os.environ["PGPASSWORD"] = config['db_pass']
+    
+    if CURRENT_SYSTEM == "Windows":
+        print(
+        'Please, enter:',
+        config['db_pass']
+        )
+    elif CURRENT_SYSTEM == "Linux":
+        os.environ["PGPASSWORD"] = config['db_pass']
 
     call([
         'psql',
@@ -485,17 +491,17 @@ if __name__ == "__main__":
             print(get_config())
 
         if param == "all":
-            # run_git_clone()
-            # run_env()
-            # run_pip()
-            # run_make_database()
-            # run_copy_settings_local()
-            # run_makemigrations()
-            # run_migrate()
-            # run_load()
-            # run_media()
-            # run_chpasswd_admin()
-            # run_perm()
+            run_git_clone()
+            run_env()
+            run_pip()
+            run_make_database()
+            run_copy_settings_local()
+            run_makemigrations()
+            run_migrate()
+            run_load()
+            run_media()
+            run_chpasswd_admin()
+            run_perm()
 
         if param == "init":
             run_init()
