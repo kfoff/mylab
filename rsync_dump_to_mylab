@@ -6,4 +6,4 @@ rsync --progress --delete-before -azv --exclude=CACHE --exclude=syncapp_tmp /var
 
 # crm
 rsync --progress --delete-before -azv /var/www/crmdata/dump mylab@mylab.babah24.ru::mylab/crm
-rsync --progress --delete-before -azv --exclude=CACHE --exclude=additionalphoto --exclude=buyer_anketa --exclude=cashreportfile --exclude=corpmailfile --exclude=docflowfile --exclude=goodscert_pdf --exclude=librarybook --exclude=materialvalue /var/www/crm/media mylab@mylab.babah24.ru::mylab/crm
+rsync --progress --delete-before -azv --exclude=CACHE --exclude=additionalphoto --exclude=buyer_anketa --exclude=cashreportfile --exclude=corpmailfile --exclude=docflowfile --exclude=goodscert_pdf --exclude=librarybook --exclude=materialvalue exclude=techinfo /var/www/crm/media mylab@mylab.babah24.ru::mylab/crm
