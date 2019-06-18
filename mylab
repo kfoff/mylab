@@ -28,6 +28,7 @@ config = {
     "git_branch": "master",
     #
     'db_host': '127.0.0.1',
+    'db_port': '5432',
     'db_user': 'MYLAB_USER',
     'db_pass': 'MYLAB_PASS',
     #
@@ -61,7 +62,7 @@ def get_config():
 
 
 def run_init():
-    ''' Run init '''
+    """Run init"""
     if make_config() is None:
         try:
             config['owner'] = sys.argv[2]
@@ -80,7 +81,7 @@ def run_init():
 
 
 def run_git_clone():
-    ''' Run git clone '''
+    """Run git clone"""
     config = get_config()
     # print(config['project'][p]['git_branch'])
     # print(config['project'][p]['git'])
@@ -107,7 +108,7 @@ def run_git_clone():
 
 
 def run_env():
-    ''' Run env '''
+    """Run env"""
     get_config()
     call([
         '/usr/bin/python3',
@@ -118,7 +119,7 @@ def run_env():
 
 
 def run_pip():
-    ''' Run pip '''
+    """Run pip"""
     config = get_config()
     for i in os.listdir(config['name']):
         if os.path.isdir(os.path.join(config['name'], i)):
@@ -148,7 +149,7 @@ def run_pip():
 
 
 def run_make_database():
-    ''' Drop and create database '''
+    """Drop and create database"""
     config = get_config()
     fname = '%s_make_database.sh' % (config['uuid'])
     s = '#!/bin/sh\n'
@@ -167,24 +168,26 @@ def run_make_database():
 
 
 def run_copy_settings_local():
-    ''' Copy settings local '''
+    """Copy settings local"""
     config = get_config()
     settings_local = None
     with open('%s/dj/settings_local.py.EXAMPLE' % (config['name']), 'r') as f:
         settings_local = f.read()
 
     # pdb.set_trace()
-    settings_local = settings_local.replace('{{CRMDATA_DIR}}', os.path.join(os.getcwd(), 'crmdata'))
+    # settings_local = settings_local.replace('{{CRMDATA_DIR}}', os.path.join(os.getcwd(), 'crmdata'))
+    settings_local = settings_local.replace("{{DBHOST}}", config['db_host'])
+    settings_local = settings_local.replace("{{DBPORT}}", config['db_port'])
     settings_local = settings_local.replace("{{DBNAME}}", config['uuid'])
     settings_local = settings_local.replace("{{DBUSER}}", config['db_user'])
-    settings_local = settings_local.replace("{{DBPASSWORD}}", '')
+    settings_local = settings_local.replace("{{DBPASSWORD}}", config['db_pass'])
     #
     with open('%s/dj/settings_local.py' % (config['name'], ), 'w') as fe:
         fe.write(settings_local)
 
 
 def run_makemigrations():
-    ''' Run makemigrations '''
+    """Run makemigrations"""
     config = get_config()
     for i in os.listdir(config['name']):
         if os.path.isdir(os.path.join(config['name'], i)):
@@ -198,7 +201,7 @@ def run_makemigrations():
 
 
 def run_migrate():
-    ''' Run migrate '''
+    """Run migrate"""
     config = get_config()
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
@@ -213,7 +216,7 @@ def run_migrate():
 
 
 def run_load():
-    ''' Run load '''
+    """Run load"""
     config = get_config()
     na_dump_dir_path = os.path.join(os.getcwd(), config['name'], 'na_dump')
     sys.path.append(na_dump_dir_path)
@@ -234,21 +237,21 @@ def run_load():
 
 
 def run_media():
-    ''' Run media '''
+    """Run media"""
     config = get_config()
-    madia_path_src = os.path.join('/', config['media'],  config['name'], 'media')
+    madia_path_src = os.path.join('/', config['media'], config['name'], 'media')
     madia_path_dst = os.path.join(os.getcwd(), config['name'], 'media')
     call(['cp', '-R', madia_path_src, madia_path_dst])
 
 
 def run_perm():
-    ''' Run perm '''
+    """Run perm"""
     get_config()
     call(['chmod', '-R', 'uog+rw', os.getcwd()])
 
 
 def run_chpasswd_admin():
-    ''' Run chpasswd admin '''
+    """Run chpasswd admin"""
     config = get_config()
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
@@ -259,9 +262,7 @@ def run_chpasswd_admin():
 
 
 def run_start():
-    '''
-    Run start project
-    '''
+    """Run start project"""
     config = get_config()
     #
     try:
@@ -281,7 +282,7 @@ def run_start():
 
 
 def run_manage():
-    ''' Run manage '''
+    """Run manage"""
     config = get_config()
     # try:
     #     arg = sys.argv[2]
