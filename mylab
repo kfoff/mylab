@@ -29,8 +29,8 @@ config = {
     #
     'db_host': '127.0.0.1',
     'db_port': '5432',
-    'db_user': 'MYLAB_USER',
-    'db_pass': 'MYLAB_PASS',
+    'db_user': 'mylab',
+    'db_pass': 'Protected567',
     #
     "dump": "/home/mylab/",
     "media": "/home/mylab/"
