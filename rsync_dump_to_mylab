@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # shop
-rsync --progress --delete-before -azv /var/www/shop/na_dump/dump mylab@mylab.babah24.ru::mylab/shop
-rsync --progress --delete-before -azv --exclude=CACHE --exclude=syncapp_tmp /var/www/shop/media mylab@mylab.babah24.ru::mylab/shop
+rsync --progress --delete-before -rzv /var/www/shop/na_dump/dump mylab@mylab.babah24.ru::mylab/shop
+rsync --progress --delete-before -rzv --exclude=CACHE --exclude=syncapp_tmp /var/www/shop/media mylab@mylab.babah24.ru::mylab/shop
 
 # crm
-rsync --progress --delete-before -azv /var/www/crmdata/dump mylab@mylab.babah24.ru::mylab/crm
-rsync --progress --delete-before -azv --exclude=CACHE --exclude=additionalphoto --exclude=buyer_anketa --exclude=cashreportfile --exclude=corpmailfile --exclude=docflowfile --exclude=goodscert_pdf --exclude=librarybook --exclude=materialvalue exclude=techinfo /var/www/crm/media mylab@mylab.babah24.ru::mylab/crm
+rsync --progress --delete-before -rzv /var/www/crmdata/dump mylab@mylab.babah24.ru::mylab/crm
+rsync --progress --delete-before -rzv --exclude=CACHE --exclude=additionalphoto --exclude=buyer_anketa --exclude=cashreportfile --exclude=corpmailfile --exclude=docflowfile --exclude=goodscert_pdf --exclude=librarybook --exclude=materialvalue exclude=techinfo /var/www/crm/media mylab@mylab.babah24.ru::mylab/crm
