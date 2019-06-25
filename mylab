@@ -360,7 +360,7 @@ if __name__ == "__main__":
             run_load()
             run_media()
             run_perm()
-            run_chpasswd_admin()
+            # run_chpasswd_admin()
 
         if param == "init":
             run_init()
@@ -386,7 +386,7 @@ if __name__ == "__main__":
 
         if param == 'perm':
             run_perm()
-            run_chpasswd_admin()
+            # run_chpasswd_admin()
 
         if param == "start":
             run_start()
