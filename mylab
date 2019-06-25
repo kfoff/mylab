@@ -7,6 +7,7 @@ import string
 import random
 import json
 from subprocess import call
+from subprocess import check_output
 import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -218,12 +219,34 @@ def run_migrate():
 def run_load():
     """Run load"""
     config = get_config()
-    na_dump_dir_path = os.path.join(os.getcwd(), config['name'], 'na_dump')
-    sys.path.append(na_dump_dir_path)
-    from applist import app
+    # na_dump_dir_path = os.path.join(os.getcwd(), config['name'], 'na_dump')
+    # sys.path.append(na_dump_dir_path)
 
-    for i in app:
-        print(i)
+    # print(os.path.join(os.getcwd(), config['name']))
+    # # PROJECT_DIR = '/var/www/shop/'
+    # PROJECT_DIR = os.path.join(os.getcwd(), config['name'])
+    # if PROJECT_DIR not in sys.path:
+    #     sys.path.append(PROJECT_DIR)
+
+    # import django
+
+    # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dj.settings")
+    # django.setup()
+
+    # from applist import app
+
+    res = check_output([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/dumpapp/sort_app_models.py' % (config['name']),
+    ])
+    # print(res)
+    res = res.decode('utf-8')
+    print(res)
+    app_list = res.split(':')
+    # print(app_list)
+
+    for i in app_list:
+        # print(i)
         xml_file_path = os.path.join('/', config['dump'], config['name'], 'dump', '%s.xml' % (i))
         print(xml_file_path)
         call([
