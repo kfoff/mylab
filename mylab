@@ -219,7 +219,8 @@ def run_migrate():
 def run_load():
     """Run load"""
     config = get_config()
-    # na_dump_dir_path = os.path.join(os.getcwd(), config['name'], 'na_dump')
+    na_dump_dir_path = os.path.join('/', config['dump'], config['name'], 'dump')
+    # print(na_dump_dir_path)
     # sys.path.append(na_dump_dir_path)
 
     # print(os.path.join(os.getcwd(), config['name']))
@@ -238,17 +239,18 @@ def run_load():
     res = check_output([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '%s/dumpapp/sort_app_models.py' % (config['name']),
+        na_dump_dir_path
     ])
     # print(res)
     res = res.decode('utf-8')
-    print(res)
+    # print(res)
     app_list = res.split(':')
     # print(app_list)
 
     for i in app_list:
         # print(i)
         xml_file_path = os.path.join('/', config['dump'], config['name'], 'dump', '%s.xml' % (i))
-        print(xml_file_path)
+        # print(xml_file_path)
         call([
             os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
             '%s/manage.py' % (config['name']),
