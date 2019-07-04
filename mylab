@@ -245,7 +245,7 @@ def run_load():
     res = res.decode('utf-8')
     # print(res)
     app_list = res.split(':')
-    # print(app_list)
+    print(app_list)
 
     for i in app_list:
         # print(i)
