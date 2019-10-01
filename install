@@ -1,11 +1,14 @@
 #!/bin/bash
 
+dpkg-reconfigure locales
+
 apt install -y fail2ban
 apt install -y rsync
 apt install -y net-tools
 apt install -y python3-dev
 apt install -y python3-pip
 apt install -y python3-venv
+apt install -y postgresql
 apt install -y libpq-dev
 
 # pip3 install wheel
