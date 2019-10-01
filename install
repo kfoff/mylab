@@ -25,3 +25,8 @@ chmod 600 /etc/rsyncd.secrets
 ./makesymlink
 
 adduser mylab
+
+# change postgresl pg hba md5 to trust
+# set password for rsync user
+# make directory in /home/mylab
+# disable sshd permitrootlogin to no
