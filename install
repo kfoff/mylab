@@ -12,11 +12,11 @@ pip3 install virtualenv
 
 chmod 600 /etc/rsyncd.secrets
 
-ufw enable
-ufw allow 22
-ufw allow from 62.109.29.220 to any port 873
-ufw deny 873
-ufw allow 8000:8999/tcp
+# ufw enable
+# ufw allow 22
+# ufw allow from 62.109.29.220 to any port 873
+# ufw deny 873
+# ufw allow 8000:8999/tcp
 
 ./makesymlink
 
