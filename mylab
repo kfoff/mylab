@@ -344,6 +344,8 @@ def run_help():
 
 
 if __name__ == "__main__":
+    print('I am mylab, what do you mean?')
+    run_help()
     for param in sys.argv:
         if param == "help":
             run_help()
