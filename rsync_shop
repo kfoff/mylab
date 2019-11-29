@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# shop
+rsync --progress --delete-before -rzv /home/disc/dump/dump mylab@mylab.babah24.ru::mylab/shop
+rsync --progress --delete-before -rzv --exclude=CACHE --exclude=syncapp_tmp /home/disc/www/shop/media mylab@mylab.babah24.ru::mylab/shop
+
