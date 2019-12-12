@@ -167,6 +167,30 @@ def run_make_database():
     return True
 
 
+def create_file(text):
+    """Создание файла скрипта и запуск его"""
+    config = get_config()
+    name = '%s_make_database.sh' % (config['uuid'])
+    fs = open(name, 'w')
+    fs.write(text)
+    fs.close()
+    call(['chmod', '777', name])
+    call(['./%s' % name])
+
+
+def drop_db():
+    """
+    Удаление текущей базы
+    запись текста комманды(удаление бд)
+    в созданный скрипт файла
+    """
+    config = get_config()
+    text = '#!/bin/sh\n'
+    command = 'runuser postgres -c "dropdb {0}"\n'.format(config['uuid'])
+    text = text + command
+    create_file(text)
+
+
 def run_copy_settings_local():
     """Copy settings local"""
     config = get_config()
@@ -337,6 +361,7 @@ def run_help():
     6 - sudo mylab media
     7 - sudo mylab perm
     8 - sudo mylab start
+    9 - sudo mylab dropdb
 # Project run examples:
     * sudo mylab start 8002
     * sudo mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk''')
@@ -396,3 +421,6 @@ if __name__ == "__main__":
 
         if param == "manage":
             run_manage()
+
+        if param == "dropdb":
+            drop_db()
