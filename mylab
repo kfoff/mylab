@@ -12,7 +12,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 def uuid_generator(name=''):
-    time_now = datetime.datetime.now().strftime("%d-%m-%Y_%H:%M")
+    time_now = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M")
     data = 'MYLAB_{0}_{1}'.format(name, time_now)
     data = data.upper()
     return data
