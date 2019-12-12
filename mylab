@@ -66,7 +66,7 @@ def run_init():
         try:
             config['owner'] = sys.argv[2]
             config['name'] = sys.argv[3]
-            config['uuid'] = 'MYLAB_%s_%s' % (sys.argv[3], uuid_generator())
+            config['uuid'] = 'mylab_%s_%s' % (sys.argv[3], uuid_generator())
         except Exception:
             print('HELP: mylab init foo bar')
         else:
