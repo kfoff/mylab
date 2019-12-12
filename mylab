@@ -167,7 +167,7 @@ def run_make_database():
     return True
 
 
-def create_file(text):
+def create_file(text: str) -> None:
     """Создание файла скрипта и запуск его"""
     config = get_config()
     name = '%s_make_database.sh' % (config['uuid'])
@@ -178,7 +178,7 @@ def create_file(text):
     call(['./%s' % name])
 
 
-def drop_db():
+def drop_db() -> None:
     """
     Удаление текущей базы
     запись текста комманды(удаление бд)
