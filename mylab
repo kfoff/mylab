@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
+import datetime
 import os
 import sys
-import string
-import random
 import json
 from subprocess import call
 from subprocess import check_output
@@ -13,9 +11,9 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 
-def uuid_generator(size=12, chars=string.ascii_letters + string.digits):
-    data = ''.join(random.choice(chars) for _ in range(size))
-    data = 'MYLAB_%s' % (data)
+def uuid_generator(name=''):
+    time_now = datetime.datetime.now().strftime("%d-%m-%Y_%H:%M")
+    data = 'MYLAB_{0}_{1}'.format(name, time_now)
     data = data.upper()
     return data
 
@@ -23,7 +21,7 @@ def uuid_generator(size=12, chars=string.ascii_letters + string.digits):
 config = {
     'name': "",
     'owner': "",
-    'uuid': uuid_generator(),
+    'uuid': "",
     #
     "git_host": "https://github.com",
     "git_branch": "master",
@@ -68,6 +66,7 @@ def run_init():
         try:
             config['owner'] = sys.argv[2]
             config['name'] = sys.argv[3]
+            config['uuid'] = uuid_generator(name=sys.argv[3])
         except Exception:
             print('HELP: mylab init foo bar')
         else:
