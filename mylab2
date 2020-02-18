@@ -31,7 +31,7 @@ config = {
     'db_user': 'mylab',
     'db_pass': 'mylab',
     #
-    "dump": "/home/mylab/",
+    "dump": "/home/www/dpub/",
     "media": "/home/mylab/"
 }
 
@@ -244,8 +244,8 @@ def run_migrate():
 def run_load():
     """Run load"""
     config = get_config()
-    # na_dump_dir_path = os.path.join('/', config['dump'], config['name'], 'dump')
-    na_dump_dir_path = 'dpub'
+    # na_dump_dir_path = os.path.join('/', config['dump'])
+    na_dump_dir_path = config['dump']
     # print(na_dump_dir_path)
     # sys.path.append(na_dump_dir_path)
 
