@@ -245,6 +245,7 @@ def run_load():
     """Run load"""
     config = get_config()
     # na_dump_dir_path = os.path.join('/', config['dump'], config['name'], 'dump')
+    na_dump_dir_path = os.path.join('/', config['dump'])
     # na_dump_dir_path = config['dump']
     # print(na_dump_dir_path)
     # sys.path.append(na_dump_dir_path)
@@ -265,7 +266,7 @@ def run_load():
     prepared_command = [
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '{}/dumpapp/sort_app_models.py'.format(config['name']),
-        config['dump']
+        na_dump_dir_path,
     ]
 
     print(prepared_command)
