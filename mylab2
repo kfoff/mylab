@@ -156,7 +156,7 @@ def run_make_database():
     # s = s + 'runuser postgres -c "dropdb ${2}"\n'
     # s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O ${1} ${2} -T template0"\n'
     s = s + 'runuser postgres -c "createuser %s"\n' % (config['db_user'])
-    s = s + """runuser postgres -c "psql -c "ALTER USER mylab WITH PASSWORD 'mylab'"""
+    s = s + '''runuser postgres -c "psql -c "ALTER USER mylab WITH PASSWORD 'mylab'""'''
     s = s + "\n"
     s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O %s %s -T template0"\n' % (config['db_user'], config['uuid'])
     fs = open(fname, 'w')
