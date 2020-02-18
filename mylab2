@@ -262,11 +262,15 @@ def run_load():
 
     # from applist import app
 
-    res = check_output([
+    prepared_command = [
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '%s/dumpapp/sort_app_models.py' % (config['name']),
         na_dump_dir_path
-    ])
+    ]
+
+    print(prepared_command)
+
+    res = check_output(prepared_command)
     # print(res)
     res = res.decode('utf-8')
     # print(res)
