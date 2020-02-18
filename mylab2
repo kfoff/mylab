@@ -268,7 +268,7 @@ def run_load():
         config['dump']
     ]
 
-    print(prepared_command)
+    # print(prepared_command)
 
     res = check_output(prepared_command)
     # print(res)
@@ -279,7 +279,7 @@ def run_load():
 
     for i in app_list:
         # print(i)
-        xml_file_path = os.path.join('/', config['dump'], config['name'], 'dump', '%s.xml' % (i))
+        xml_file_path = os.path.join('/', config['dump'], '%s.xml' % (i))
         # print(xml_file_path)
         call([
             os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
