@@ -1,0 +1,426 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+import datetime
+import os
+import sys
+import json
+from subprocess import call
+from subprocess import check_output
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
+
+
+def uuid_generator():
+    time_now = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M")
+    data = time_now
+    data = data.upper()
+    return data
+
+
+config = {
+    'name': "",
+    'owner': "",
+    'uuid': "",
+    #
+    # "git_host": "https://github.com",
+    # "git_branch": "master",
+    #
+    'db_host': '127.0.0.1',
+    'db_port': '5432',
+    'db_user': 'mylab',
+    'db_pass': 'Protected567',
+    #
+    "dump": "/home/mylab/",
+    "media": "/home/mylab/"
+}
+
+
+def make_config():
+    check_config = None
+    try:
+        f = open('mylab.json', 'r')
+    except Exception:
+        print('not found mylab.json')
+        pass
+    else:
+        f_read = f.read()
+        f.close()
+        try:
+            check_config = json.loads(f_read)
+        except Exception:
+            print('bad syntax mylab.json')
+    return check_config
+
+
+def get_config():
+    config = make_config()
+    if config is None:
+        sys.exit()
+    return config
+
+
+def run_init():
+    """Run init"""
+    if make_config() is None:
+        try:
+            config['owner'] = sys.argv[2]
+            config['name'] = sys.argv[3]
+            config['uuid'] = 'mylab_%s_%s' % (sys.argv[3], uuid_generator())
+        except Exception:
+            print('HELP: mylab init foo bar')
+        else:
+            print('Init config file mylab.json')
+            pp.pprint(config)
+            fname = 'mylab.json'
+            fs = open(fname, 'w')
+            fs.write(json.dumps(config, indent=4))
+            fs.close()
+    else:
+        print('Config file mylab.json exist')
+
+
+def run_git_clone():
+    """Run git clone"""
+    config = get_config()
+    # print(config['project'][p]['git_branch'])
+    # print(config['project'][p]['git'])
+    # call([
+    #     'git',
+    #     'clone',
+    #     '-b',
+    #     '%s' % (config['project'][p_data['name']]['git_branch']),
+    #     '%s' % (config['project'][p_data['name']]['git']),
+    #     p_data['uuid']
+    # ])
+    # call(['chmod', '-R', 'uog+rw', config['nodeid']])
+    # call(['git', 'checkout', 'crm1',])
+    call(['git', 'init'])
+    call([
+        'git',
+        'remote',
+        'add',
+        'origin',
+        'git@github.com:{owner}/{name}.git'.format(owner=config['owner'], name=config['name'])
+    ])
+    call(['git', 'fetch', 'origin'])
+    call(['git', 'checkout', '-b', 'master', '--track', 'origin/master'])
+
+
+def run_env():
+    """Run env"""
+    get_config()
+    call([
+        '/usr/bin/python3',
+        '-m',
+        'venv',
+        '.pyenv',
+    ])
+
+
+def run_pip():
+    """Run pip"""
+    config = get_config()
+    for i in os.listdir(config['name']):
+        if os.path.isdir(os.path.join(config['name'], i)):
+            try:
+                f = open('%s/%s/__mylab.json' % (config['name'], i), 'r')
+            except Exception:
+                # print('not found __mylab.json')
+                pass
+            else:
+                __mylab = f.read()
+                f.close()
+
+                try:
+                    __mylab = json.loads(__mylab)
+                except Exception:
+                    print('bad json __mylab')
+                else:
+                    print(i)
+                    for pip_item in __mylab['pip']:
+                        pip3_bin = os.path.join(os.getcwd(), '.pyenv', 'bin', 'pip3')
+                        print(pip3_bin, 'install', pip_item)
+                        call([
+                            pip3_bin,
+                            'install',
+                            pip_item,
+                        ])
+
+
+def run_make_database():
+    """Drop and create database"""
+    config = get_config()
+    fname = '%s_make_database.sh' % (config['uuid'])
+    s = '#!/bin/sh\n'
+    # s = s + 'runuser postgres -c "dropdb ${2}"\n'
+    # s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O ${1} ${2} -T template0"\n'
+    s = s + 'runuser postgres -c "createuser %s"\n' % (config['db_user'])
+    s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O %s %s -T template0"\n' % (config['db_user'], config['uuid'])
+    fs = open(fname, 'w')
+    fs.write(s)
+    fs.close()
+
+    call(['chmod', '777', fname])
+    call(['./%s' % (fname)])
+
+    return True
+
+
+def create_file(text: str) -> None:
+    """Создание файла скрипта и запуск его"""
+    config = get_config()
+    name = '%s_make_database.sh' % (config['uuid'])
+    fs = open(name, 'w')
+    fs.write(text)
+    fs.close()
+    call(['chmod', '777', name])
+    call(['./%s' % name])
+
+
+def drop_db() -> None:
+    """
+    Удаление текущей базы
+    запись текста комманды(удаление бд)
+    в созданный скрипт файла
+    """
+    config = get_config()
+    text = '#!/bin/sh\n'
+    command = 'runuser postgres -c "dropdb {0}"\n'.format(config['uuid'])
+    text = '{0} {1}'.format(text, command)
+    create_file(text)
+
+
+def run_copy_settings_local():
+    """Copy settings local"""
+    config = get_config()
+    settings_local = None
+    with open('%s/dj/settings_local.py.EXAMPLE' % (config['name']), 'r') as f:
+        settings_local = f.read()
+
+    # pdb.set_trace()
+    # settings_local = settings_local.replace('{{CRMDATA_DIR}}', os.path.join(os.getcwd(), 'crmdata'))
+    settings_local = settings_local.replace("{{DBHOST}}", config['db_host'])
+    settings_local = settings_local.replace("{{DBPORT}}", config['db_port'])
+    settings_local = settings_local.replace("{{DBNAME}}", config['uuid'])
+    settings_local = settings_local.replace("{{DBUSER}}", config['db_user'])
+    settings_local = settings_local.replace("{{DBPASSWORD}}", config['db_pass'])
+    #
+    with open('%s/dj/settings_local.py' % (config['name'], ), 'w') as fe:
+        fe.write(settings_local)
+
+
+def run_makemigrations():
+    """Run makemigrations"""
+    config = get_config()
+    for i in os.listdir(config['name']):
+        if os.path.isdir(os.path.join(config['name'], i)):
+            print(i)
+            call([
+                os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+                '%s/manage.py' % (config['name']),
+                'makemigrations',
+                '%s' % (i),
+            ])
+
+
+def run_migrate():
+    """Run migrate"""
+    config = get_config()
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+        'makemigrations'
+    ])
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+        'migrate'
+    ])
+
+
+def run_load():
+    """Run load"""
+    config = get_config()
+    na_dump_dir_path = os.path.join('/', config['dump'], config['name'], 'dump')
+    # print(na_dump_dir_path)
+    # sys.path.append(na_dump_dir_path)
+
+    # print(os.path.join(os.getcwd(), config['name']))
+    # # PROJECT_DIR = '/var/www/shop/'
+    # PROJECT_DIR = os.path.join(os.getcwd(), config['name'])
+    # if PROJECT_DIR not in sys.path:
+    #     sys.path.append(PROJECT_DIR)
+
+    # import django
+
+    # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dj.settings")
+    # django.setup()
+
+    # from applist import app
+
+    res = check_output([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/dumpapp/sort_app_models.py' % (config['name']),
+        na_dump_dir_path
+    ])
+    # print(res)
+    res = res.decode('utf-8')
+    # print(res)
+    app_list = res.split(':')
+    print(app_list)
+
+    for i in app_list:
+        # print(i)
+        xml_file_path = os.path.join('/', config['dump'], config['name'], 'dump', '%s.xml' % (i))
+        # print(xml_file_path)
+        call([
+            os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+            '%s/manage.py' % (config['name']),
+            'loaddata',
+            '-v', '3',
+            '--format=xml',
+            xml_file_path,
+        ])
+
+
+def run_media():
+    """Run media"""
+    config = get_config()
+    madia_path_src = os.path.join('/', config['media'], config['name'], 'media')
+    madia_path_dst = os.path.join(os.getcwd(), config['name'], 'media')
+    call(['cp', '-R', madia_path_src, madia_path_dst])
+
+
+def run_perm():
+    """Run perm"""
+    get_config()
+    call(['chmod', '-R', 'uog+rw', os.getcwd()])
+
+
+def run_chpasswd_admin():
+    """Run chpasswd admin"""
+    config = get_config()
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+        'changepassword',
+        'admin'
+    ])
+
+
+def run_start():
+    """Run start project"""
+    config = get_config()
+    #
+    try:
+        port = sys.argv[2]
+    except Exception:
+        port = '8001'
+    #
+    print('Running on: http://mylab.babah24.ru:%s' % (port))
+    #
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+        # 'runserver',
+        'runserver_plus',
+        '0.0.0.0:%s' % (port),
+    ])
+
+
+def run_manage():
+    """Run manage"""
+    config = get_config()
+    # try:
+    #     arg = sys.argv[2]
+    # except Exception:
+    #     sys.exit()
+    command = [
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '%s/manage.py' % (config['name']),
+    ]
+
+    for arg in sys.argv[2:]:
+        command.append(arg)
+
+    call(command)
+
+
+def run_help():
+    print('''# Quick use:
+    1 - sudo mylab init foo bar
+    2 - sudo mylab all
+    3 - sudo mylab start
+# Step by step use:
+    1 - sudo mylab init foo bar
+    2 - sudo mylab clone
+    3 - sudo mylab install
+    4 - sudo mylab makemigrate
+    5 - sudo mylab load
+    6 - sudo mylab media
+    7 - sudo mylab perm
+    8 - sudo mylab start
+    9 - sudo mylab dropdb
+# Project run examples:
+    * sudo mylab start 8002
+    * sudo mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk''')
+
+
+if __name__ == "__main__":
+    print('I am mylab, what do you mean?')
+    run_help()
+    for param in sys.argv:
+        if param == "help":
+            run_help()
+
+        if param == "config":
+            print(get_config())
+
+        if param == "all":
+            run_git_clone()
+            run_env()
+            run_pip()
+            run_make_database()
+            run_copy_settings_local()
+            run_makemigrations()
+            run_migrate()
+            run_load()
+            run_media()
+            run_perm()
+            # run_chpasswd_admin()
+
+        if param == "init":
+            run_init()
+
+        if param == 'clone':
+            run_git_clone()
+
+        if param == 'install':
+            run_env()
+            run_pip()
+
+        if param == 'makemigrate':
+            run_make_database()
+            run_copy_settings_local()
+            run_makemigrations()
+            run_migrate()
+
+        if param == 'load':
+            run_load()
+
+        if param == 'media':
+            run_media()
+
+        if param == 'perm':
+            run_perm()
+            # run_chpasswd_admin()
+
+        if param == "start":
+            run_start()
+
+        if param == "manage":
+            run_manage()
+
+        if param == "dropdb":
+            drop_db()
