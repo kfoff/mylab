@@ -20,7 +20,7 @@ image_name = '/home/git/mylab/sample.jpg'
 
 for model in django.apps.apps.get_models():
     for field in model._meta.get_fields():
-        print(field)
+        print('replace_media_img [{}]'.format(field))
         # if isinstance(field, ImageField) or isinstance(field, FileField):
         if isinstance(field, ImageField):
             model_file_field = str(field).split('.')[-1]
