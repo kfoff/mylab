@@ -7,6 +7,7 @@ import json
 from subprocess import call
 from subprocess import check_output
 import pprint
+from shutil import copyfile
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -262,10 +263,11 @@ def run_load():
 
 def run_media():
     """Run media"""
-    config = get_config()
-    madia_path_src = os.path.join('/', config['media'], config['name'], 'media')
-    madia_path_dst = os.path.join(os.getcwd(), config['name'], 'media')
-    call(['cp', '-R', madia_path_src, madia_path_dst])
+    copyfile('/home/git/mylab/replace_media_img.py', '/home/www/{}/replace_media_img.py'.format(config['name']))
+    # config = get_config()
+    # madia_path_src = os.path.join('/', config['media'], config['name'], 'media')
+    # madia_path_dst = os.path.join(os.getcwd(), config['name'], 'media')
+    # call(['cp', '-R', madia_path_src, madia_path_dst])
 
 
 def run_perm():
