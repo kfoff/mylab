@@ -266,10 +266,10 @@ def run_media():
     config = get_config()
     print(config['name'])
     copyfile('/home/git/mylab/replace_media_img.py', '/home/www/{}/replace_media_img.py'.format(config['name']))
-    # config = get_config()
-    # madia_path_src = os.path.join('/', config['media'], config['name'], 'media')
-    # madia_path_dst = os.path.join(os.getcwd(), config['name'], 'media')
-    # call(['cp', '-R', madia_path_src, madia_path_dst])
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '{}/replace_media_img.py'.format(config['name']),
+    ])
 
 
 def run_perm():
