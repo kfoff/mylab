@@ -266,6 +266,7 @@ def run_media():
     config = get_config()
     print(config['name'])
     copyfile('/home/git/mylab/replace_media_img.py', '/home/www/{}/replace_media_img.py'.format(config['name']))
+    copyfile('/home/git/mylab/sample.jpg', '/home/www/{}/sample.jpg'.format(config['name']))
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '{}/replace_media_img.py'.format(config['name']),
