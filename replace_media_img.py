@@ -24,6 +24,7 @@ for model in django.apps.apps.get_models():
         if isinstance(field, ImageField):
             model_file_field = str(field).split('.')[-1]
             for obj in model.objects.all():
+                print(obj)
                 getattr(obj, model_file_field).save(
                     image_name,
                     open(image_name, 'rb')
