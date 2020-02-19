@@ -263,6 +263,7 @@ def run_load():
 
 def run_media():
     """Run media"""
+    config = get_config()
     print(config['name'])
     copyfile('/home/git/mylab/replace_media_img.py', '/home/www/{}/replace_media_img.py'.format(config['name']))
     # config = get_config()
