@@ -22,7 +22,6 @@ config = {
     'name': "",
     'owner': "",
     'uuid': "",
-    'django_settings': "settings_mylab.py",
     #
     # "git_host": "https://github.com",
     # "git_branch": "master",
@@ -191,8 +190,6 @@ def run_makemigrations():
                 os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
                 '%s/manage.py' % (config['name']),
                 'makemigrations',
-                '--settings',
-                config['django_settings'],
                 '%s' % (i),
             ])
 
@@ -204,15 +201,11 @@ def run_migrate():
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '%s/manage.py' % (config['name']),
         'makemigrations',
-        '--settings',
-        config['django_settings'],
     ])
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '%s/manage.py' % (config['name']),
         'migrate',
-        '--settings',
-        config['django_settings'],
     ])
 
 
@@ -261,8 +254,6 @@ def run_load():
             os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
             '%s/manage.py' % (config['name']),
             'loaddata',
-            '--settings',
-            config['django_settings'],
             '-v', '3',
             '--format=xml',
             xml_file_path,
@@ -290,8 +281,6 @@ def run_chpasswd_admin():
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '%s/manage.py' % (config['name']),
         'changepassword',
-        '--settings',
-        config['django_settings'],
         'admin'
     ])
 
@@ -312,8 +301,6 @@ def run_start():
         '%s/manage.py' % (config['name']),
         # 'runserver',
         'runserver_plus',
-        '--settings',
-        config['django_settings'],
         '0.0.0.0:%s' % (port),
     ])
 
