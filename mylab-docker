@@ -386,8 +386,7 @@ if __name__ == "__main__":
             run_load()
 
         if param == 'media':
-            pass
-            # run_media()
+            run_media()
 
         if param == 'perm':
             run_perm()
