@@ -20,11 +20,12 @@ image_name = '/home/git/mylab/sample.jpg'
 
 for model in django.apps.apps.get_models():
     for field in model._meta.get_fields():
+        print(field)
         # if isinstance(field, ImageField) or isinstance(field, FileField):
         if isinstance(field, ImageField):
             model_file_field = str(field).split('.')[-1]
             for obj in model.objects.all():
-                print(obj)
+                # print(obj)
                 getattr(obj, model_file_field).save(
                     image_name,
                     open(image_name, 'rb')
