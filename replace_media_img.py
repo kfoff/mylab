@@ -15,7 +15,7 @@ import django.apps
 from django.db.models import ImageField
 # from django.db.models import FileField
 
-image_name = 'sample.jpg'
+image_name = '/home/git/mylab/sample.jpg'
 
 
 for model in django.apps.apps.get_models():
