@@ -1,6 +1,6 @@
 FROM debian
 
-EXPOSE 5432
+# EXPOSE 5432
 
 RUN rm /etc/localtime
 RUN ln -s /usr/share/zoneinfo/Asia/Krasnoyarsk /etc/localtime
