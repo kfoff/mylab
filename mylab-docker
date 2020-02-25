@@ -32,8 +32,7 @@ config = {
     'db_user': 'mylab',
     'db_pass': 'mylab',
     #
-    # "dump": "/home/www/dpub/",
-    "dump": "/home/www/shop/dpub/",
+    "dump": "/home/www/dpub/",
     "media": "/home/mylab/"
 }
 
