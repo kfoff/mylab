@@ -1,8 +1,8 @@
 # build
-docker build -t discoroveryx/debian .
+docker build -t discoroveryx/alpine .
 
 # run and configure
-docker run --rm -it discoroveryx/debian
+docker run --rm -it discoroveryx/alpine
 
 # push to hub
-docker push discoroveryx/debian
+docker push discoroveryx/alpine
