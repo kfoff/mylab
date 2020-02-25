@@ -31,3 +31,5 @@ WORKDIR /home/git/
 RUN git clone https://github.com/roveryx/mylab
 RUN ln -s /home/git/mylab/mylab-docker /bin
 RUN mylab-docker
+
+WORKDIR /home/www/
