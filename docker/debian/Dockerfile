@@ -17,6 +17,7 @@ RUN apt install -y wget
 RUN apt install -y postgresql-client
 RUN apt install -y libpq-dev
 RUN apt install -y build-essential python3-setuptools python3-wheel python3-cffi
+RUN apt install -y libpangocairo-1.0-0
 # RUN apt install -y libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
 
 RUN pip3 install virtualenv
