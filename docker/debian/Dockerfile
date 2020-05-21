@@ -29,7 +29,7 @@ RUN mkdir /root/.ssh/
 
 WORKDIR /home/git/
 
-RUN git clone https://github.com/roveryx/mylab
+RUN git clone https://github.com/discoroveryx/mylab
 RUN ln -s /home/git/mylab/mylab-docker /bin
 RUN mylab-docker
 
