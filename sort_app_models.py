@@ -1,28 +1,17 @@
 #!/usr/bin/env python3
 
-from django.conf import settings
 from sort_app_inc import DependencyOrder
 import re
-from os.path import isfile, join
+from os.path import isfile
+from os.path import join
 from os import listdir
-import django
-import os
 import sys
-
-# PROJECT_DIR = '/home/disc/www/shop/'
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_DIR not in sys.path:
-    sys.path.append(PROJECT_DIR)
-
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dj.settings")
-django.setup()
 
 
 try:
     sys.argv[1]
 except Exception:
-    PATH = settings.DUMP_PUBLIC_DIR
+    PATH = '/home/www/dpub'
 else:
     PATH = sys.argv[1]
 
