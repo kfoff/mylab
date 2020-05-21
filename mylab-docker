@@ -234,7 +234,8 @@ def run_load():
 
     prepared_command = [
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '{}/dumpapp/sort_app_models.py'.format(config['name']),
+        # '{}/dumpapp/sort_app_models.py'.format(config['name']),
+        '/home/git/mylab/sort_app_models.py',
         na_dump_dir_path,
     ]
 
