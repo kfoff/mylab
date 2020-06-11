@@ -26,25 +26,10 @@ def uuid_generator():
     return data
 
 
-config = {
-    'name': "",
-    'owner': "",
-    'uuid': "",
-    #
-    # "git_host": "https://github.com",
-    # "git_branch": "master",
-    #
-    'db_host': '127.0.0.1',
-    'db_port': '5432',
-    'db_user': 'mylab',
-    'db_pass': 'mylab',
-    #
-    "dump": "/home/www/dpub/",
-    "media": "/home/mylab/"
-}
+config: dict = {}
 
 
-def make_config():
+def open_config():
     check_config = None
     try:
         f = open('mylab.json', 'r')
@@ -62,30 +47,10 @@ def make_config():
 
 
 def get_config():
-    config = make_config()
+    config = open_config()
     if config is None:
         sys.exit()
     return config
-
-
-def run_init():
-    """Run init"""
-    if make_config() is None:
-        try:
-            config['owner'] = sys.argv[2]
-            config['name'] = sys.argv[3]
-            config['uuid'] = 'mylab_%s_%s' % (sys.argv[3], uuid_generator())
-        except Exception:
-            print('HELP: mylab init foo bar')
-        else:
-            print('Init config file mylab.json')
-            pp.pprint(config)
-            fname = 'mylab.json'
-            fs = open(fname, 'w')
-            fs.write(json.dumps(config, indent=4))
-            fs.close()
-    else:
-        print('Config file mylab.json exist')
 
 
 def run_env():
@@ -102,63 +67,46 @@ def run_env():
 def run_pip():
     """Run pip"""
     config = get_config()
-    for i in os.listdir(config['name']):
-        if os.path.isdir(os.path.join(config['name'], i)):
-            try:
-                f = open('%s/%s/__mylab.json' % (config['name'], i), 'r')
-            except Exception:
-                # print('not found __mylab.json')
-                pass
-            else:
-                __mylab = f.read()
-                f.close()
-
-                try:
-                    __mylab = json.loads(__mylab)
-                except Exception:
-                    print('bad json __mylab')
-                else:
-                    print(i)
-                    for pip_item in __mylab['pip']:
-                        pip3_bin = os.path.join(os.getcwd(), '.pyenv', 'bin', 'pip3')
-                        print(pip3_bin, 'install', pip_item)
-                        call([
-                            pip3_bin,
-                            'install',
-                            pip_item,
-                        ])
+    for pip_item in config['pip']:
+        pip3_bin = os.path.join(os.getcwd(), '.pyenv', 'bin', 'pip3')
+        print(pip3_bin, 'install', pip_item)
+        call([
+            pip3_bin,
+            'install',
+            pip_item,
+        ])
 
 
-def run_make_database():
-    """Drop and create database"""
-    config = get_config()
-    fname = '%s_make_database.sh' % (config['uuid'])
-    s = '#!/bin/sh\n'
-    # s = s + 'runuser postgres -c "dropdb ${2}"\n'
-    # s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O ${1} ${2} -T template0"\n'
-    s = s + 'runuser postgres -c "createuser %s"\n' % (config['db_user'])
-    s = s + '''runuser postgres -c "psql -c \\"ALTER USER mylab WITH PASSWORD 'mylab'\\""'''
-    s = s + "\n"
-    s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O %s %s -T template0"\n' % (config['db_user'], config['name'])
-    fs = open(fname, 'w')
-    fs.write(s)
-    fs.close()
+# def run_make_database():
+#     """Drop and create database"""
+#     config = get_config()
+#     fname = '%s_make_database.sh' % (config['uuid'])
+#     s = '#!/bin/sh\n'
+#     # s = s + 'runuser postgres -c "dropdb ${2}"\n'
+#     # s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O ${1} ${2} -T template0"\n'
+#     s = s + 'runuser postgres -c "createuser %s"\n' % (config['db_user'])
+#     s = s + '''runuser postgres -c "psql -c \\"ALTER USER mylab WITH PASSWORD 'mylab'\\""'''
+#     s = s + "\n"
+#     s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O %s %s -T template0"\n' % (config['db_user'], config['name'])
+#     fs = open(fname, 'w')
+#     fs.write(s)
+#     fs.close()
 
-    call(['chmod', '777', fname])
-    call(['./%s' % (fname)])
+#     call(['chmod', '777', fname])
+#     call(['./%s' % (fname)])
 
-    return True
+#     return True
 
 
-def create_file(text: str) -> None:
-    """Создание файла скрипта и запуск его"""
-    config = get_config()
-    name = '%s_make_database.sh' % (config['uuid'])
-    fs = open(name, 'w')
-    fs.write(text)
-    fs.close()
-    call(['chmod', '777', name])
-    call(['./%s' % name])
+# def create_file(text: str) -> None:
+#     """Создание файла скрипта и запуск его"""
+#     config = get_config()
+#     name = '%s_make_database.sh' % (config['uuid'])
+#     fs = open(name, 'w')
+#     fs.write(text)
+#     fs.close()
+#     call(['chmod', '777', name])
+#     call(['./%s' % name])
 
 
 def run_makemigrations():
@@ -169,9 +117,9 @@ def run_makemigrations():
             print(i)
             call([
                 os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-                '%s/manage.py' % (config['name']),
+                '{}/manage.py'.format(config['name']),
                 'makemigrations',
-                '%s' % (i),
+                '{}'.format(i),
             ])
 
 
@@ -180,12 +128,12 @@ def run_migrate():
     config = get_config()
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
+        '{}/manage.py'.format(config['name']),
         'makemigrations',
     ])
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
+        '{}/manage.py'.format(config['name']),
         'migrate',
     ])
 
@@ -234,7 +182,7 @@ def run_load():
         print(xml_file_path)
         call([
             os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-            '%s/manage.py' % (config['name']),
+            '{}/manage.py'.format(config['name']),
             'loaddata',
             '-v', '3',
             '--format=xml',
@@ -265,7 +213,7 @@ def run_chpasswd_admin():
     config = get_config()
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
+        '{}/manage.py'.format(config['name']),
         'changepassword',
         'admin'
     ])
@@ -280,11 +228,11 @@ def run_start():
     except Exception:
         port = '8001'
     #
-    print('Running on: http://mylab.babah24.ru:%s' % (port))
+    print('Running on: 127.0.0.1:%s' % (port))
     #
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
+        '{}/manage.py'.format(config['name']),
         # 'runserver',
         'runserver_plus',
         '0.0.0.0:%s' % (port),
@@ -300,7 +248,7 @@ def run_manage():
     #     sys.exit()
     command = [
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        '%s/manage.py' % (config['name']),
+        '{}/manage.py'.format(config['name']),
     ]
 
     for arg in sys.argv[2:]:
@@ -310,22 +258,21 @@ def run_manage():
 
 
 def run_help():
+    binex = 'mylab-docker'
     print('''# Quick use:
-    - sudo mylab init foo bar
-    - sudo mylab all
-    - sudo mylab start
+    - sudo {binex} all
+    - sudo {binex} start
 # Step by step use:
-    - sudo mylab init foo bar
-    - sudo mylab install
-    - sudo mylab makemigrate
-    - sudo mylab load
-    - sudo mylab media
-    - sudo mylab perm
-    - sudo mylab start
-    - sudo mylab dropdb
+    - sudo {binex} install
+    - sudo {binex} makemigrate
+    - sudo {binex} load
+    - sudo {binex} media
+    - sudo {binex} perm
+    - sudo {binex} start
+    - sudo {binex} dropdb
 # Project run examples:
-    * sudo mylab start 8002
-    * sudo mylab manage runserver_plus 0.0.0.0:8001 --settings dj.settings''')
+    * sudo {binex} start 8001
+    * sudo {binex} manage runserver_plus 0.0.0.0:8001 --settings dj.settings'''.format(binex=binex))
 
 
 if __name__ == "__main__":
@@ -341,7 +288,7 @@ if __name__ == "__main__":
         if param == "all":
             run_env()
             run_pip()
-            run_make_database()
+            # run_make_database()
             run_makemigrations()
             run_migrate()
             run_load()
@@ -349,15 +296,12 @@ if __name__ == "__main__":
             run_perm()
             # run_chpasswd_admin()
 
-        if param == "init":
-            run_init()
-
         if param == 'install':
             run_env()
             run_pip()
 
         if param == 'makemigrate':
-            run_make_database()
+            # run_make_database()
             run_makemigrations()
             run_migrate()
 
