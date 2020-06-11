@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 from sort_app_inc import DependencyOrder
 import re
@@ -11,7 +12,7 @@ import sys
 try:
     sys.argv[1]
 except Exception:
-    PATH = '/home/www/dpub'
+    PATH = '/home/www/project/dpub'
 else:
     PATH = sys.argv[1]
 
@@ -32,6 +33,7 @@ def read_the_xmls(xmls):
     model_with_depends = dict()
 
     for xml in xmls:
+        print(xml)
 
         file = open(PATH + '/' + xml, 'r')
         lines = file.readlines()
@@ -111,8 +113,11 @@ if __name__ == "__main__":
 
     xmls = [f for f in listdir(PATH) if isfile(join(PATH, f))]
 
+    print(xmls)
+
     # read the xmls
     model_with_dependencies = read_the_xmls(xmls)
+    print(model_with_dependencies)
 
     # order models
     proper_order = deep_sort(model_with_dependencies)

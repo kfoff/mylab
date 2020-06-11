@@ -24,7 +24,8 @@ RUN pip3 install virtualenv
 
 RUN mkdir /home/git/
 RUN mkdir /home/www/
-RUN mkdir /home/disc
+RUN mkdir /home/www/project/
+RUN mkdir /home/disc/
 RUN mkdir /root/.ssh/
 
 WORKDIR /home/git/
@@ -33,4 +34,4 @@ RUN git clone https://github.com/discoroveryx/mylab
 RUN ln -s /home/git/mylab/mylab-docker /bin
 RUN mylab-docker
 
-WORKDIR /home/www/
+WORKDIR /home/www/project/

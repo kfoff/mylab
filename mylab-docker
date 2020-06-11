@@ -77,38 +77,6 @@ def run_pip():
         ])
 
 
-# def run_make_database():
-#     """Drop and create database"""
-#     config = get_config()
-#     fname = '%s_make_database.sh' % (config['uuid'])
-#     s = '#!/bin/sh\n'
-#     # s = s + 'runuser postgres -c "dropdb ${2}"\n'
-#     # s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O ${1} ${2} -T template0"\n'
-#     s = s + 'runuser postgres -c "createuser %s"\n' % (config['db_user'])
-#     s = s + '''runuser postgres -c "psql -c \\"ALTER USER mylab WITH PASSWORD 'mylab'\\""'''
-#     s = s + "\n"
-#     s = s + 'runuser postgres -c "createdb -U postgres -E utf8 -O %s %s -T template0"\n' % (config['db_user'], config['name'])
-#     fs = open(fname, 'w')
-#     fs.write(s)
-#     fs.close()
-
-#     call(['chmod', '777', fname])
-#     call(['./%s' % (fname)])
-
-#     return True
-
-
-# def create_file(text: str) -> None:
-#     """Создание файла скрипта и запуск его"""
-#     config = get_config()
-#     name = '%s_make_database.sh' % (config['uuid'])
-#     fs = open(name, 'w')
-#     fs.write(text)
-#     fs.close()
-#     call(['chmod', '777', name])
-#     call(['./%s' % name])
-
-
 def run_makemigrations():
     """Run makemigrations"""
     config = get_config()
@@ -194,7 +162,7 @@ def run_media():
     """Run media"""
     config = get_config()
     print(config['name'])
-    copyfile('/home/git/mylab/replace_media_img.py', '/home/www/{}/replace_media_img.py'.format(config['name']))
+    copyfile('/home/git/mylab/replace_media_img.py', '/home/www/project/{}/replace_media_img.py'.format(config['name']))
     # copyfile('/home/git/mylab/sample.jpg', '/home/www/{}/sample.jpg'.format(config['name']))
     call([
         os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
@@ -260,7 +228,7 @@ def run_manage():
 def run_help():
     binex = 'mylab-docker'
     print('''# Quick use:
-    - sudo {binex} all
+    - sudo {binex} build
     - sudo {binex} start
 # Step by step use:
     - sudo {binex} install
@@ -285,7 +253,7 @@ if __name__ == "__main__":
         if param == "config":
             print(get_config())
 
-        if param == "all":
+        if param == "build":
             run_env()
             run_pip()
             # run_make_database()
