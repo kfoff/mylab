@@ -1,12 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
-"""
-changelog: mylab-docker
-Release date: 2020-06-11
-version: 2.0
-"""
-
 import datetime
 import os
 import sys
@@ -86,6 +79,33 @@ def run_init():
             fs.close()
     else:
         print('Config file mylab.json exist')
+
+
+def run_git_clone():
+    """Run git clone"""
+    config = get_config()
+    # print(config['project'][p]['git_branch'])
+    # print(config['project'][p]['git'])
+    # call([
+    #     'git',
+    #     'clone',
+    #     '-b',
+    #     '%s' % (config['project'][p_data['name']]['git_branch']),
+    #     '%s' % (config['project'][p_data['name']]['git']),
+    #     p_data['uuid']
+    # ])
+    # call(['chmod', '-R', 'uog+rw', config['nodeid']])
+    # call(['git', 'checkout', 'crm1',])
+    call(['git', 'init'])
+    call([
+        'git',
+        'remote',
+        'add',
+        'origin',
+        'git@github.com:{owner}/{name}.git'.format(owner=config['owner'], name=config['name'])
+    ])
+    call(['git', 'fetch', 'origin'])
+    call(['git', 'checkout', '-b', 'master', '--track', 'origin/master'])
 
 
 def run_env():
@@ -311,21 +331,22 @@ def run_manage():
 
 def run_help():
     print('''# Quick use:
-    - sudo mylab init foo bar
-    - sudo mylab all
-    - sudo mylab start
+    1 - sudo mylab init foo bar
+    2 - sudo mylab all
+    3 - sudo mylab start
 # Step by step use:
-    - sudo mylab init foo bar
-    - sudo mylab install
-    - sudo mylab makemigrate
-    - sudo mylab load
-    - sudo mylab media
-    - sudo mylab perm
-    - sudo mylab start
-    - sudo mylab dropdb
+    1 - sudo mylab init foo bar
+    2 - sudo mylab clone
+    3 - sudo mylab install
+    4 - sudo mylab makemigrate
+    5 - sudo mylab load
+    6 - sudo mylab media
+    7 - sudo mylab perm
+    8 - sudo mylab start
+    9 - sudo mylab dropdb
 # Project run examples:
     * sudo mylab start 8002
-    * sudo mylab manage runserver_plus 0.0.0.0:8001 --settings dj.settings''')
+    * sudo mylab manage runserver_plus 0.0.0.0:8002 --settings dj.settings_nsk''')
 
 
 if __name__ == "__main__":
@@ -339,6 +360,7 @@ if __name__ == "__main__":
             print(get_config())
 
         if param == "all":
+            run_git_clone()
             run_env()
             run_pip()
             run_make_database()
@@ -351,6 +373,9 @@ if __name__ == "__main__":
 
         if param == "init":
             run_init()
+
+        if param == 'clone':
+            run_git_clone()
 
         if param == 'install':
             run_env()
