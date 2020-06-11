@@ -1,3 +1,7 @@
+# rmi
+docker image prune
+docker rmi discoroveryx/alpine
+
 # build
 docker build -t discoroveryx/alpine .
 
