@@ -2,6 +2,7 @@ FROM alpine
 
 RUN apk upgrade \
     && apk add --no-cache mc \
+    make \
     python3 \
     python3-dev \
     py3-pip \
