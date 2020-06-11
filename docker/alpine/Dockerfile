@@ -3,16 +3,18 @@ FROM alpine
 RUN apk upgrade \
     && apk add --no-cache mc \
     make \
+    build-base \
+    gcc \
+    linux-headers \
     python3 \
     python3-dev \
     py3-pip \
     py3-virtualenv \
     git \
     postgresql-client \
-    # libpq-dev \
-    # build-essential python3-setuptools python3-wheel python3-cffi \
-    # libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info \
-    # libpangocairo-1.0-0 \
+    postgresql-dev \
+    libffi-dev \
+    jpeg-dev zlib-dev \
     && pip3 install --no-cache-dir --upgrade pip \
     && pip3 install virtualenv
 
