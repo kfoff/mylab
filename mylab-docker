@@ -187,6 +187,16 @@ def run_chpasswd_admin():
     ])
 
 
+def run_test():
+    """Run tests"""
+    config = get_config()
+    call([
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
+        '{}/manage.py'.format(config['name']),
+        'test', '-v', '2',
+    ])
+
+
 def run_start():
     """Run start project"""
     config = get_config()
@@ -236,6 +246,7 @@ def run_help():
     - sudo {binex} load
     - sudo {binex} media
     - sudo {binex} perm
+    - sudo {binex} test
     - sudo {binex} start
     - sudo {binex} dropdb
 # Project run examples:
@@ -285,6 +296,9 @@ if __name__ == "__main__":
 
         if param == "start":
             run_start()
+
+        if param == "test":
+            run_test()
 
         if param == "manage":
             run_manage()
