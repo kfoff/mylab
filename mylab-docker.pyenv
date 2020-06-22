@@ -56,23 +56,22 @@ def get_config():
     return config
 
 
-# def run_env():
-#     """Run env"""
-#     get_config()
-#     call([
-#         '/usr/bin/python3',
-#         '-m',
-#         'venv',
-#         '.pyenv',
-#     ])
+def run_env():
+    """Run env"""
+    get_config()
+    call([
+        '/usr/bin/python3',
+        '-m',
+        'venv',
+        '.pyenv',
+    ])
 
 
 def run_pip():
     """Run pip"""
     config = get_config()
     for pip_item in config['pip']:
-        # pip3_bin = os.path.join(os.getcwd(), '.pyenv', 'bin', 'pip3')
-        pip3_bin = 'pip3'
+        pip3_bin = os.path.join(os.getcwd(), '.pyenv', 'bin', 'pip3')
         print(pip3_bin, 'install', pip_item)
         call([
             pip3_bin,
@@ -88,8 +87,7 @@ def run_makemigrations():
         if os.path.isdir(os.path.join(config['name'], i)):
             print(i)
             call([
-                # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-                'python3',
+                os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
                 '{}/manage.py'.format(config['name']),
                 'makemigrations',
                 '{}'.format(i),
@@ -100,14 +98,12 @@ def run_migrate():
     """Run migrate"""
     config = get_config()
     call([
-        # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        'python3',
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '{}/manage.py'.format(config['name']),
         'makemigrations',
     ])
     call([
-        # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        'python3',
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '{}/manage.py'.format(config['name']),
         'migrate',
     ])
@@ -136,8 +132,7 @@ def run_load():
     # from applist import app
 
     prepared_command = [
-        # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        'python3',
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         # '{}/dumpapp/sort_app_models.py'.format(config['name']),
         '/home/git/mylab/sort_app_models.py',
         na_dump_dir_path,
@@ -157,8 +152,7 @@ def run_load():
         xml_file_path = os.path.join('/', config['dump'], '%s.xml' % (i))
         print(xml_file_path)
         call([
-            # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-            'python3',
+            os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
             '{}/manage.py'.format(config['name']),
             'loaddata',
             '-v', '3',
@@ -174,8 +168,7 @@ def run_media():
     copyfile('/home/git/mylab/replace_media_img.py', '/home/www/project/{}/replace_media_img.py'.format(config['name']))
     # copyfile('/home/git/mylab/sample.jpg', '/home/www/{}/sample.jpg'.format(config['name']))
     call([
-        # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        'python3',
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '{}/replace_media_img.py'.format(config['name']),
     ])
 
@@ -190,8 +183,7 @@ def run_chpasswd_admin():
     """Run chpasswd admin"""
     config = get_config()
     call([
-        # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        'python3',
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '{}/manage.py'.format(config['name']),
         'changepassword',
         'admin'
@@ -202,8 +194,7 @@ def run_test():
     """Run tests"""
     config = get_config()
     call([
-        # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        'python3',
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '{}/manage.py'.format(config['name']),
         'test', '-v', '2',
     ])
@@ -221,8 +212,7 @@ def run_start():
     print('Running on: 127.0.0.1:%s' % (port))
     #
     call([
-        # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        'python3',
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '{}/manage.py'.format(config['name']),
         # 'runserver',
         'runserver_plus',
@@ -238,8 +228,7 @@ def run_manage():
     # except Exception:
     #     sys.exit()
     command = [
-        # os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
-        'python3',
+        os.path.join(os.getcwd(), '.pyenv', 'bin', 'python3'),
         '{}/manage.py'.format(config['name']),
     ]
 
@@ -279,7 +268,7 @@ if __name__ == "__main__":
             print(get_config())
 
         if param == "build":
-            # run_env()
+            run_env()
             run_pip()
             # run_make_database()
             run_makemigrations()
@@ -290,7 +279,7 @@ if __name__ == "__main__":
             # run_chpasswd_admin()
 
         if param == 'install':
-            # run_env()
+            run_env()
             run_pip()
 
         if param == 'makemigrate':
