@@ -8,7 +8,7 @@ RUN apk upgrade \
     linux-headers \
     python3 \
     python3-dev \
-    # py3-pip \
+    py3-pip \
     # py3-virtualenv \
     git \
     postgresql-client \
